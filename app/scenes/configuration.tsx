@@ -1,31 +1,36 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
-import React, { Component, FunctionComponent, useEffect, useState } from 'react'
-import { Alert, Button, DeviceEventEmitter, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
-import { definitions, RNSerialport } from 'react-native-serialport';
+import React, { FunctionComponent, useEffect, useState } from 'react'
+import { Alert, Button, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
 import ModalInfoFC from '../components/ModalInfoFC';
+import { DataBitsEnum, ParitiesEnum, StopBitsEnum } from '../infrastructure/enums/configurationDataEnum';
 import { startUsbListener } from '../infrastructure/utils/serialConnection';
 
 const ConfigurationScreen: FunctionComponent = () => {
 
     const Options = {
         parity: [
-            'None',
-            'Odd',
-            'Even',
+            { name: 'Even', value: ParitiesEnum.PARITY_EVEN },
+            { name: 'None', value: ParitiesEnum.PARITY_NONE },
+            { name: 'Mark', value: ParitiesEnum.PARITY_MARK },
+            { name: 'Odd', value: ParitiesEnum.PARITY_ODD },
+            { name: 'Space', value: ParitiesEnum.PARITY_SPACE }
         ],
         dataBits: [
-            5, 6, 7, 8,
+            DataBitsEnum.DATA_BITS_5,
+            DataBitsEnum.DATA_BITS_6,
+            DataBitsEnum.DATA_BITS_7,
+            DataBitsEnum.DATA_BITS_8,
         ],
         stopsBits: [
-            1, 1.5, 2
+            { name: '1', value: StopBitsEnum.STOP_BITS_1 },
+            { name: '1.5', value: StopBitsEnum.STOP_BITS_15 },
+            { name: '2', value: StopBitsEnum.STOP_BITS_2 },
         ],
-
     }
     useEffect(() => {
         getDataFromStorage();
-        return () => { };
-    }, [])
+    }, []);
 
     function getDataFromStorage() {
         setShowModalLoading(true);
@@ -42,7 +47,6 @@ const ConfigurationScreen: FunctionComponent = () => {
             setShowModalLoading(false);
         });
     }
-
 
     async function saveData() {
         setShowModalLoading(true);
@@ -104,7 +108,7 @@ const ConfigurationScreen: FunctionComponent = () => {
                     />
                 </View>
             </View>
-            {/*  */}
+            {/*  
             <View style={{ marginVertical: 10 }} >
                 <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Break duration (ms):</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
@@ -117,7 +121,7 @@ const ConfigurationScreen: FunctionComponent = () => {
                     />
                 </View>
             </View>
-            {/*  */}
+              */}
             <View style={{ marginVertical: 10 }} >
                 <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Parity:</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
@@ -125,7 +129,7 @@ const ConfigurationScreen: FunctionComponent = () => {
                         selectedValue={time}
                         style={{ height: 50, width: '100%' }}
                         onValueChange={(itemValue, itemIndex) => setTime(+itemValue)}>
-                        {Options.parity.map((item) => <Picker.Item key={'value-time-' + item} label={item} value={item} />)}
+                        {Options.parity.map((item) => <Picker.Item key={'value-time-' + item} label={item.name} value={item.value} />)}
                     </Picker>
                 </View>
             </View>
@@ -133,7 +137,7 @@ const ConfigurationScreen: FunctionComponent = () => {
                 <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Data bits:</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                     <Picker
-                        selectedValue={time}
+                        selectedValue={dataBits}
                         style={{ height: 50, width: '100%' }}
                         onValueChange={(itemValue, itemIndex) => setDataBits(+itemValue)}>
                         {Options.dataBits.map((item) => <Picker.Item key={'value-time-' + item} label={item.toString()} value={item} />)}

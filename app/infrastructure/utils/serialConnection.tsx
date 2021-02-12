@@ -1,4 +1,4 @@
-import { DeviceEventEmitter } from "react-native";
+import { Alert, DeviceEventEmitter } from "react-native";
 import { RNSerialport, definitions, actions, ReturnedDataTypes } from "react-native-serialport";
 import { ParitiesEnum, DataBitsEnum, StopBitsEnum } from "../enums/configurationDataEnum";
 
@@ -18,7 +18,7 @@ export interface ConectionSerial {
     baudRate: string, interface: string, returnedDataType: ReturnedDataTypes, parity: ParitiesEnum, dataBits: DataBitsEnum, stopBits: StopBitsEnum
 }
 
-export function startUsbListener(context: any, conectionSerial: ConectionSerial | null, onReadData: (data: any) => void, onConnected: (data: any) => void, onDisconnected: (data: any) => void, onError: (data: any) => void) {
+export function startUsbListener(context: any, conectionSerial: ConectionSerial | null, onReadData: (data: any) => void, onConnected: (data: any) => void, onDisconnected: (data: any) => void, onError: (data: any) => void, onStartService: (data: any) => void) {
     const _conectionSerial = conectionSerial || conectionSerialC;
     DeviceEventEmitter.addListener(actions.ON_ERROR, onError, context);
     DeviceEventEmitter.addListener(
@@ -27,19 +27,26 @@ export function startUsbListener(context: any, conectionSerial: ConectionSerial 
         context
     );
     DeviceEventEmitter.addListener(
+        actions.ON_SERVICE_STARTED,
+        onStartService,
+        context
+    );
+    DeviceEventEmitter.addListener(
         actions.ON_DISCONNECTED,
         onDisconnected,
         context
     );
     DeviceEventEmitter.addListener(actions.ON_READ_DATA, onReadData, context);
-    RNSerialport.setReturnedDataType(_conectionSerial.returnedDataType as ReturnedDataTypes);
-    RNSerialport.setAutoConnectBaudRate(+_conectionSerial.baudRate);
-    RNSerialport.setInterface(parseInt(_conectionSerial.interface, 10));
-    RNSerialport.setParity(_conectionSerial.parity)
-    RNSerialport.setDataBit(_conectionSerial.dataBits)
-    RNSerialport.setStopBit(_conectionSerial.stopBits)
-    RNSerialport.setAutoConnect(true);
-    RNSerialport.startUsbService();
+    RNSerialport.setReturnedDataType(definitions.RETURNED_DATA_TYPES.HEXSTRING);
+    if (_conectionSerial.baudRate) {
+        RNSerialport.setAutoConnectBaudRate(+_conectionSerial.baudRate);
+        RNSerialport.setInterface(parseInt("-1", 10));
+        RNSerialport.setParity(_conectionSerial.parity);
+        RNSerialport.setDataBit(_conectionSerial.dataBits);
+        RNSerialport.setStopBit(_conectionSerial.stopBits);
+        RNSerialport.setAutoConnect(true);
+        RNSerialport.startUsbService();
+    }
 }
 
 export async function stopUsbListener() {
