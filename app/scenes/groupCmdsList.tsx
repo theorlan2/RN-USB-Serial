@@ -9,7 +9,7 @@ import CardGroup from '../components/GroupsCmd/CardGroup';
 import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 //
 import { ConectionSerial, } from '../infrastructure/utils/serialConnection'
-import { RootStackParamList } from '../routes/routesNames';
+import routesNames, { RootStackParamList } from '../routes/routesNames';
 //
 type GroupCmdListScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -22,13 +22,7 @@ interface Props {
 
 const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
 
-    const [groupsCmdsData, setGroupsCmdsData] = useState([
-        {
-            id: 12,
-            title: "Grupo dispensador Grande",
-            listCmds: []
-        }
-    ] as GroupCmdModelView[]);
+    const [groupsCmdsData, setGroupsCmdsData] = useState([] as GroupCmdModelView[]);
     const [showModalLoading, setShowModalLoading] = useState(true);
 
     useEffect(() => {
@@ -48,12 +42,23 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
             .then(() => {
             })
             .catch(() => {
-
             });
     }
 
-    function openGroup(id: number) { }
-    function deleteGroup(id: number) { }
+    function openGroup(id: number) {
+        props.navigation.navigate(routesNames.GroupCmds.name, { id: id });
+    }
+    function deleteGroup(id: number) {
+        Alert.alert("¿Desas eliminar este grupo?", "Si eliminas el grupo deberas crear uno de nuevo.",
+            [
+                {
+                    text: "Cancelar",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                },
+                { text: "Si, eliminar", onPress: () => console.log("OK Pressed") }
+            ])
+    }
 
     async function storeData(key: string, value: any) {
         try {
@@ -99,9 +104,7 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <ScrollView style={styles.mainCont}   >
                 {groupsCmdsData.map((item, key) => <CardGroup key={item.id + key} item={item} openGroup={openGroup} deleteGroup={deleteGroup} />)}
-
             </ScrollView>
-
         </View>
     );
 }

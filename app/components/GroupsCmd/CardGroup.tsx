@@ -33,10 +33,10 @@ const CardGroup: FunctionComponent<Props> = (props) => {
                 <Text style={styles.titleBtn} >{props.item.title}</Text>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }} >
-                <Pressable style={{ marginHorizontal: 10, width: 60, height: 60, backgroundColor: '#ECEFF1', alignItems: 'center', justifyContent: 'center', borderRadius: 50 }} onPress={() => { }}  >
+                <Pressable style={{ marginHorizontal: 10, width: 60, height: 60, backgroundColor: '#ECEFF1', alignItems: 'center', justifyContent: 'center', borderRadius: 50 }} onPress={() => { props.deleteGroup(props.item.id); }}  >
                     <IonicIcon name="trash-outline" size={26} color="red" />
                 </Pressable>
-                <Pressable style={{ marginHorizontal: 10, width: 60, height: 60, backgroundColor: '#ECEFF1', alignItems: 'center', justifyContent: 'center', borderRadius: 50 }} onPress={() => { }}  >
+                <Pressable style={{ marginHorizontal: 10, width: 60, height: 60, backgroundColor: '#ECEFF1', alignItems: 'center', justifyContent: 'center', borderRadius: 50 }} onPress={() => { props.openGroup(props.item.id); }}  >
                     <IonicIcon name="eye-outline" size={26} color="#0096A6" />
                 </Pressable>
             </View>

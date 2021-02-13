@@ -5,6 +5,7 @@ import React, { FunctionComponent, useEffect, useState } from 'react'
 import { Alert, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
 import { definitions } from 'react-native-serialport';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
+import ModalAddGroupFC from '../components/ModalAddGroupFC';
 import { StatusConnectionEnum, useSerialStatus } from '../infrastructure/contexts/serialStatusContext';
 
 //
@@ -25,6 +26,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
 
     const [configurationData, setConfigurationData] = useState({} as ConectionSerial)
     const [showModalLoading, setShowModalLoading] = useState(true);
+    const [showModalAddGroup, setShowModalAddGroup] = useState(true);
     const { setConnectStatus } = useSerialStatus();
 
     useEffect(() => {
@@ -68,6 +70,17 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
             // error reading value
         }
         return result;
+    }
+
+
+    async function storeData(key: string, value: any) {
+        try {
+            const jsonValue = JSON.stringify(value)
+            await AsyncStorage.setItem('@' + key, jsonValue)
+        } catch (e) {
+            // saving error
+            Alert.alert('Error guardando', 'Ha ocurrido un error guardando.')
+        }
     }
 
     function connectDevice(this: any) {
@@ -117,6 +130,37 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
         }
     })
 
+    function addGroup() {
+        setShowModalAddGroup(true);
+    }
+
+    function createGroup(name: string) {
+        setShowModalAddGroup(false);
+        setShowModalLoading(true);
+
+        let groupsCmdsData = [] as any;
+        let id = Date.now();
+        getData('groupsCmds').then(r => {
+            if (r) {
+                groupsCmdsData = r;
+            }
+        }).then(() => {
+            groupsCmdsData.push({
+                id: id,
+                title: name,
+                listCmds: []
+            })
+            console.log('groupsCmdsData', groupsCmdsData);
+            storeData("groupsCmds", groupsCmdsData).then(() => {
+                setShowModalLoading(false);
+                setTimeout(() => {
+                    props.navigation.navigate(routesNames.GroupCmds.name, { id: id })
+                }, 500);
+            });
+        });
+
+    }
+
     return (
         <View style={{ flex: 1, flexDirection: 'column' }} >
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
@@ -131,7 +175,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
                     </View>
                 </Pressable>
                 {/* Btn 2 */}
-                <Pressable onPress={() => props.navigation.navigate(routesNames.GroupCmds.name)} style={styles.contBtn} >
+                <Pressable onPress={addGroup} style={styles.contBtn} >
                     <View style={styles.contTitleBtn} >
                         <IonicIcon name="document-outline" size={32} color="#444" />
                         <Text style={styles.titleBtn} >Iniciar Nuevo Grupo</Text>
@@ -150,8 +194,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
                     </View>
                 </Pressable>
             </View>
-
-
+            <ModalAddGroupFC title="Crear nuevo grupo" description="Escribe el nombre del grupo:" modalVisible={showModalAddGroup} closeModal={() => setShowModalAddGroup(false)} create={createGroup} />
         </View>
     );
 }

@@ -83,8 +83,9 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
         setShowModalLoading(true);
         getData('groupsCmds').then(r => {
             if (r) {
-                let listGroups = JSON.parse(r);
-                let result = listGroups.find(item => item == 1);
+                let listGroups = r;
+                let result = listGroups.find(item => item.id == props.route.params.id);
+                console.log('id',props.route.params.id, 'listGroups',listGroups);
                 if (result) {
                     setGroupData(result);
                 } else {
@@ -99,7 +100,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
 
     function saveGroup() {
         getData('groupsCmds').then(r => {
-            let listGroups = r ? JSON.parse(r) : [];
+            let listGroups = r ? r : [];
             listGroups.push(groupData);
             storeData("groupsCmds", listGroups);
         })
