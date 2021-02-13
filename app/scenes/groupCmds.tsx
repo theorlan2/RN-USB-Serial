@@ -4,7 +4,6 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { FunctionComponent, useEffect, useState } from 'react'
 import { Alert, Button, Pressable, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
-import { definitions, RNSerialport } from 'react-native-serialport';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import CardCmd from '../components/GroupsCmd/CardCmd';
 import ModalInfoFC from '../components/ModalInfoFC';
@@ -62,6 +61,9 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
             setCmd('');
             setTime(10);
         }, 100);
+        setTimeout(() => {
+            saveGroup();
+        }, 500);
     }
 
 
@@ -78,15 +80,15 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
         setCmds(cmds.filter(item => item.id != id));
     }
 
-
     function getDataFromStorage() {
         setShowModalLoading(true);
         getData('groupsCmds').then(r => {
             if (r) {
                 let listGroups = r;
                 let result = listGroups.find(item => item.id == props.route.params.id);
-                console.log('id',props.route.params.id, 'listGroups',listGroups);
+                console.log(result);
                 if (result) {
+                    setCmds(result.listCmds);
                     setGroupData(result);
                 } else {
                     props.navigation.navigate(routesNames.Home.name);
@@ -99,9 +101,14 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     }
 
     function saveGroup() {
-        getData('groupsCmds').then(r => {
+        getData('groupsCmds').then((r: GroupCmdModelView[]) => {
             let listGroups = r ? r : [];
-            listGroups.push(groupData);
+            let result = r.findIndex(item => item.id == props.route.params.id);
+            console.log('result', result);
+            if (result > -1) {
+                console.log('result', listGroups[result], cmds);
+                listGroups[result].listCmds = cmds;
+            }
             storeData("groupsCmds", listGroups);
         })
     }
@@ -180,6 +187,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                                     placeholder="Comando en Hexadecimal"
                                     value={cmd}
                                     onChangeText={value => setCmd(value)}
+                                    autoCapitalize='characters'
                                 />
                             </View>
                         </View>
@@ -203,7 +211,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                             </View>
                         </View>
                     </View>}
-                    {cmds.length < 1 && <View style={{ marginVertical: 10 }} >
+                    {cmds.length < 1 && !showAddCmd && <View style={{ marginVertical: 10 }} >
                         <Text style={{ textAlign: 'center' }} >No hay Comandos creados</Text>
                     </View>}
                     {/*  */}

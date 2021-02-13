@@ -4,7 +4,6 @@ import React, { FunctionComponent, useEffect, useState } from 'react'
 import { Alert, Button, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
 import ModalInfoFC from '../components/ModalInfoFC';
 import { DataBitsEnum, ParitiesEnum, StopBitsEnum } from '../infrastructure/enums/configurationDataEnum';
-import { startUsbListener } from '../infrastructure/utils/serialConnection';
 
 const ConfigurationScreen: FunctionComponent = () => {
 
@@ -84,12 +83,12 @@ const ConfigurationScreen: FunctionComponent = () => {
         return result;
     }
 
-    const [parity, setParity] = useState('');
-    const [dataBits, setDataBits] = useState(5)
-    const [stopsBits, setStopsBits] = useState(1)
+    const [parity, setParity] = useState(ParitiesEnum.PARITY_NONE);
+    const [dataBits, setDataBits] = useState(DataBitsEnum.DATA_BITS_5)
+    const [stopsBits, setStopsBits] = useState(StopBitsEnum.STOP_BITS_1)
     const [time, setTime] = useState(0)
     const [breakDuration, setBreakDuration] = useState('')
-    const [baudRate, setBaudRate] = useState('')
+    const [baudRate, setBaudRate] = useState('9600')
     const [isSave, setIsSave] = useState(true);
     const [showModalLoading, setShowModalLoading] = useState(true);
 
@@ -108,27 +107,14 @@ const ConfigurationScreen: FunctionComponent = () => {
                     />
                 </View>
             </View>
-            {/*  
-            <View style={{ marginVertical: 10 }} >
-                <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Break duration (ms):</Text>
-                <View style={{ backgroundColor: '#fff', elevation: 2 }} >
-                    <TextInput
-                        placeholder="Break duration (ms)"
-                        style={{}}
-                        keyboardType={'numeric'}
-                        value={breakDuration}
-                        onChangeText={value => setBreakDuration(value)}
-                    />
-                </View>
-            </View>
-              */}
+
             <View style={{ marginVertical: 10 }} >
                 <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Parity:</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                     <Picker
-                        selectedValue={time}
+                        selectedValue={parity}
                         style={{ height: 50, width: '100%' }}
-                        onValueChange={(itemValue, itemIndex) => setTime(+itemValue)}>
+                        onValueChange={(itemValue, itemIndex) => setParity(+itemValue)}>
                         {Options.parity.map((item) => <Picker.Item key={'value-time-' + item} label={item.name} value={item.value} />)}
                     </Picker>
                 </View>
@@ -148,7 +134,7 @@ const ConfigurationScreen: FunctionComponent = () => {
                 <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Stop bits:</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                     <Picker
-                        selectedValue={dataBits}
+                        selectedValue={stopsBits}
                         style={{ height: 50, width: '100%' }}
                         onValueChange={(itemValue, itemIndex) => setStopsBits(itemValue)}>
                         {Options.stopsBits.map((item) => <Picker.Item key={'value-time-' + item} label={item.name} value={item.value} />)}

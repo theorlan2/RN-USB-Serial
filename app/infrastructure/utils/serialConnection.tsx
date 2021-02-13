@@ -1,3 +1,4 @@
+import { Context } from "react";
 import { Alert, DeviceEventEmitter } from "react-native";
 import { RNSerialport, definitions, actions, ReturnedDataTypes } from "react-native-serialport";
 import { ParitiesEnum, DataBitsEnum, StopBitsEnum } from "../enums/configurationDataEnum";
@@ -48,6 +49,13 @@ export function startUsbListener(context: any, conectionSerial: ConectionSerial 
         RNSerialport.startUsbService();
     }
 }
+
+export function addEventListenerReadData(callback: (value: any) => void, context: Context<any>) {
+    if (callback)
+    DeviceEventEmitter.addListener(actions.ON_READ_DATA, callback, context);
+
+}
+
 
 export async function stopUsbListener() {
     DeviceEventEmitter.removeAllListeners();

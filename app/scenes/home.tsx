@@ -1,15 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Picker } from '@react-native-picker/picker'
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Alert, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native'
 import { definitions } from 'react-native-serialport';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import ModalAddGroupFC from '../components/ModalAddGroupFC';
+import ModalInfoFC from '../components/ModalInfoFC';
 import { StatusConnectionEnum, useSerialStatus } from '../infrastructure/contexts/serialStatusContext';
 
 //
-import { ConectionSerial, sendData, startUsbListener } from '../infrastructure/utils/serialConnection'
+import { ConectionSerial, startUsbListener } from '../infrastructure/utils/serialConnection'
 import routesNames, { RootStackParamList } from '../routes/routesNames';
 
 
@@ -26,12 +26,12 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
 
     const [configurationData, setConfigurationData] = useState({} as ConectionSerial)
     const [showModalLoading, setShowModalLoading] = useState(true);
-    const [showModalAddGroup, setShowModalAddGroup] = useState(true);
+    const [showModalAddGroup, setShowModalAddGroup] = useState(false);
     const { setConnectStatus } = useSerialStatus();
 
     useEffect(() => {
-        getDataFromStorage();
         if (!configurationData.baudRate) {
+            getDataFromStorage();
         }
         return () => { };
     }, [configurationData])
@@ -50,12 +50,12 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
                     returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING as any
                 });
             }
+            console.log('r', r);
             return r;
         }).then((r) => {
             setShowModalLoading(false);
             return r;
         }).then((r) => {
-            console.log('r', r);
             connectDevice();
         });
     }
@@ -194,6 +194,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
                     </View>
                 </Pressable>
             </View>
+            <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={"Cargando datos"} description={"Obteniendo datos de configuracion guardados..."} loading={true} />
             <ModalAddGroupFC title="Crear nuevo grupo" description="Escribe el nombre del grupo:" modalVisible={showModalAddGroup} closeModal={() => setShowModalAddGroup(false)} create={createGroup} />
         </View>
     );
