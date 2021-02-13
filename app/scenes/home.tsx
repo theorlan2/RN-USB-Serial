@@ -21,19 +21,20 @@ type HomeScreenNavigationProp = StackNavigationProp<
 interface Props {
     navigation: HomeScreenNavigationProp;
 }
-
+let isStart = false;
 const HomeScreen: FunctionComponent<Props> = (props) => {
 
     const [configurationData, setConfigurationData] = useState({} as ConectionSerial)
-    const [showModalLoading, setShowModalLoading] = useState(true);
+    const [showModalLoading, setShowModalLoading] = useState(false);
     const [showModalAddGroup, setShowModalAddGroup] = useState(false);
     const { setConnectStatus } = useSerialStatus();
 
     useEffect(() => {
-        if (!configurationData.baudRate) {
+        if (configurationData && !isStart) {
+            console.log('isStart')
             getDataFromStorage();
+            isStart = true;
         }
-        return () => { };
     }, [configurationData])
 
 

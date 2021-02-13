@@ -16,7 +16,6 @@ const HeaderRight: FunctionComponent<Props> = (props) => {
     }, [props.statusConnection])
 
     function ValidateColor() {
-        console.log('ValidateColor', props.statusConnection);
         switch (props.statusConnection) {
             case StatusConnectionEnum.SERVICE_START:
                 setColorStatus('#80DEEA');

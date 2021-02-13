@@ -10,7 +10,7 @@ import ModalInfoFC from '../components/ModalInfoFC';
 import { CmdModelView, GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 
 //
-import { sendData } from '../infrastructure/utils/serialConnection'
+import { addEventListenerReadData, sendData } from '../infrastructure/utils/serialConnection'
 import routesNames, { RootStackParamList } from '../routes/routesNames';
 
 type GroupCmdScreenNavigationProp = StackNavigationProp<
@@ -35,12 +35,14 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     const [disabledAdd, setDisabledAdd] = useState(false);
     const [showAddCmd, setShowAddCmd] = useState(false);
     const [isSave, setIsSave] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
     const [logCMD, setLogCMD] = useState([]);
     const [showModalLoading, setShowModalLoading] = useState(false);
 
     useEffect(() => {
         if (props.route.params && props.route.params.id) {
             getDataFromStorage();
+            eventOnRead();
         }
     }, [])
 
@@ -68,12 +70,32 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
 
 
     function editCmd(id: number) {
+        setIsEdit(true);
         let r = cmds.find(item => item.id == id);
         setTitle(r?.title);
         setCmd(r?.cmd);
         setTime(r?.timeOut);
         setIdCmd(id);
         setShowAddCmd(true);
+    }
+
+    function saveEditCmd(id: number) {
+        setCmds((prevState) => {
+            let resultIndx = prevState.findIndex(item => item.id == id);
+            prevState[resultIndx] = {
+                id: id,
+                title: title,
+                cmd: cmd,
+                timeOut: time,
+                idGroup: props.route.params.id.toString()
+            };
+
+            return [
+                ...prevState
+            ];
+        });
+        setIdCmd(0);
+        setIsEdit(false);
     }
 
     function deleteCmd(id: number) {
@@ -104,13 +126,20 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
         getData('groupsCmds').then((r: GroupCmdModelView[]) => {
             let listGroups = r ? r : [];
             let result = r.findIndex(item => item.id == props.route.params.id);
-            console.log('result', result);
             if (result > -1) {
-                console.log('result', listGroups[result], cmds);
                 listGroups[result].listCmds = cmds;
             }
             storeData("groupsCmds", listGroups);
         })
+    }
+
+    function eventOnRead(this: any) {
+        addEventListenerReadData((data) => {
+            setLogCMD((prevState) => ([
+                ...prevState,
+                { isSend: false, cmd: data.payload }
+            ] as any));
+        }, this);
     }
 
     async function storeData(key: string, value: any) {
@@ -207,7 +236,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                                 <Button title="CANCELAR" onPress={() => setShowAddCmd(false)} color="red" disabled={disabledAdd} ></Button>
                             </View>
                             <View style={{ flex: 1, marginLeft: 5 }} >
-                                <Button title="Agregar Comando" onPress={addCmd} color="#00BBD3" disabled={disabledAdd} ></Button>
+                                <Button title="Guardar" onPress={() => isEdit ? saveEditCmd(idCmd) : addCmd()} color="#00BBD3" disabled={disabledAdd} ></Button>
                             </View>
                         </View>
                     </View>}
