@@ -2,10 +2,21 @@
  * @format
  */
 
-import {AppRegistry} from 'react-native';
+import React from 'react';
+import { AppRegistry } from 'react-native';
 import 'react-native-gesture-handler';
-
 import App from './app/routes/index';
-import {name as appName} from './app.json';
+import { SerialStatusProvider } from './app/infrastructure/contexts/serialStatusContext';
+import { name as appName } from './app.json';
 
-AppRegistry.registerComponent(appName, () => App);
+export default function Main() {
+
+    return (
+        <SerialStatusProvider>
+            <App />
+        </SerialStatusProvider>
+    );
+}
+
+
+AppRegistry.registerComponent(appName, () => Main);

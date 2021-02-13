@@ -148,10 +148,10 @@ const ConfigurationScreen: FunctionComponent = () => {
                 <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Stop bits:</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                     <Picker
-                        selectedValue={time}
+                        selectedValue={dataBits}
                         style={{ height: 50, width: '100%' }}
-                        onValueChange={(itemValue, itemIndex) => setStopsBits(+itemValue)}>
-                        {Options.stopsBits.map((item) => <Picker.Item key={'value-time-' + item} label={item.toString()} value={item} />)}
+                        onValueChange={(itemValue, itemIndex) => setStopsBits(itemValue)}>
+                        {Options.stopsBits.map((item) => <Picker.Item key={'value-time-' + item} label={item.name} value={item.value} />)}
                     </Picker>
                 </View>
             </View>
