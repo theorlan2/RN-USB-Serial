@@ -5,7 +5,12 @@ export type RootStackParamList = {
     GroupCmds: {
         id?: number,
     },
-    GroupCmdsList: undefined
+    MacroCmds: {
+        id?: number,
+    },
+    GroupCmdsList: undefined,
+    MacroCmdsList: undefined,
+    CalCRCCmds: undefined,
 };
 
 export default {
@@ -15,8 +20,17 @@ export default {
     GroupCmds: {
         name: 'GroupCmds'
     },
+    MacroCmds: {
+        name: 'MacroCmds'
+    },
     GroupCmdsList: {
         name: 'GroupCmdsList'
+    },
+    MacroCmdsList: {
+        name: 'MacroCmdsList'
+    },
+    CalCRCCmds: {
+        name: 'CalCRCCmds'
     },
     TempCmds: {
         name: 'TempCmds'

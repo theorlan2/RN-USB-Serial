@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native'
+import { Alert, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native'
 import { definitions } from 'react-native-serialport';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import ModalAddGroupFC from '../components/ModalAddGroupFC';
@@ -9,9 +9,8 @@ import ModalInfoFC from '../components/ModalInfoFC';
 import { StatusConnectionEnum, useSerialStatus } from '../infrastructure/contexts/serialStatusContext';
 
 //
-import { ConectionSerial, startUsbListener } from '../infrastructure/utils/serialConnection'
+import { ConectionSerial, startUsbListener, validateIsRun } from '../infrastructure/utils/serialConnection'
 import routesNames, { RootStackParamList } from '../routes/routesNames';
-
 
 type HomeScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -21,43 +20,47 @@ type HomeScreenNavigationProp = StackNavigationProp<
 interface Props {
     navigation: HomeScreenNavigationProp;
 }
-let isStart = false;
+
 const HomeScreen: FunctionComponent<Props> = (props) => {
 
     const [configurationData, setConfigurationData] = useState({} as ConectionSerial)
     const [showModalLoading, setShowModalLoading] = useState(false);
     const [showModalAddGroup, setShowModalAddGroup] = useState(false);
+    const [showModalAddMacro, setShowModalAddMacro] = useState(false);
     const { setConnectStatus } = useSerialStatus();
 
     useEffect(() => {
-        if (configurationData && !isStart) {
-            console.log('isStart')
-            getDataFromStorage();
-            isStart = true;
-        }
-    }, [configurationData])
+    }, []);
+
+    useEffect(() => {
+        validateIsRun().then((r) => {
+            if (!r)
+                getDataFromStorage();
+        })
+    }, [])
 
 
     function getDataFromStorage() {
+        let result = {} as any;
         setShowModalLoading(true);
         getData('configuration').then(r => {
             if (r) {
-                setConfigurationData({
+                result = {
                     interface: "-1",
                     baudRate: r.baud_rate,
                     parity: r.parity,
                     dataBits: r.data_bits,
                     stopBits: r.stop_bits,
                     returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING as any
-                });
+                };
+                setConfigurationData(result);
             }
-            console.log('r', r);
             return r;
         }).then((r) => {
             setShowModalLoading(false);
             return r;
         }).then((r) => {
-            connectDevice();
+            connectDevice(result);
         });
     }
 
@@ -84,14 +87,14 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
         }
     }
 
-    function connectDevice(this: any) {
+    function connectDevice(this: any, configuration: ConectionSerial) {
         startUsbListener(this,
             {
-                baudRate: configurationData.baudRate,
-                interface: configurationData.interface,
-                dataBits: +configurationData.dataBits,
-                stopBits: +configurationData.stopBits,
-                parity: +configurationData.parity,
+                baudRate: configuration.baudRate,
+                interface: configuration.interface,
+                dataBits: +configuration.dataBits,
+                stopBits: +configuration.stopBits,
+                parity: +configuration.parity,
                 returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING as any
             },
             //OnRead
@@ -110,7 +113,6 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
             (data) => { },
             // on StartService 
             (data) => {
-                console.log('SERVICE_START')
                 setConnectStatus(StatusConnectionEnum.SERVICE_START);
             })
     }
@@ -134,6 +136,9 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
     function addGroup() {
         setShowModalAddGroup(true);
     }
+    function addGMacro() {
+        setShowModalAddMacro(true);
+    }
 
     function createGroup(name: string) {
         setShowModalAddGroup(false);
@@ -151,21 +156,43 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
                 title: name,
                 listCmds: []
             })
-            console.log('groupsCmdsData', groupsCmdsData);
             storeData("groupsCmds", groupsCmdsData).then(() => {
                 setShowModalLoading(false);
                 setTimeout(() => {
-                    props.navigation.navigate(routesNames.GroupCmds.name, { id: id })
+                    props.navigation.navigate(routesNames.GroupCmds.name, { id: id });
+                }, 500);
+            });
+        }); 
+    }
+
+    function createMacro(name: string) {
+        setShowModalAddMacro(false);
+        setShowModalLoading(true);
+        let groupsCmdsData = [] as any;
+        let id = Date.now();
+        getData('macrosCmds').then(r => {
+            if (r) {
+                groupsCmdsData = r;
+            }
+        }).then(() => {
+            groupsCmdsData.push({
+                id: id,
+                title: name,
+                listCmds: []
+            })
+            storeData("macrosCmds", groupsCmdsData).then(() => {
+                setShowModalLoading(false);
+                setTimeout(() => {
+                    props.navigation.navigate(routesNames.MacroCmds.name, { id: id });
                 }, 500);
             });
         });
-
     }
 
     return (
         <View style={{ flex: 1, flexDirection: 'column' }} >
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
-            <View style={styles.mainCont} >
+            <ScrollView style={styles.mainCont} >
                 <Pressable onPress={() => props.navigation.navigate(routesNames.TempCmds.name)} style={styles.contBtn} >
                     <View style={styles.contTitleBtn} >
                         <IonicIcon name="list-outline" size={32} color="#444" />
@@ -178,7 +205,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
                 {/* Btn 2 */}
                 <Pressable onPress={addGroup} style={styles.contBtn} >
                     <View style={styles.contTitleBtn} >
-                        <IonicIcon name="document-outline" size={32} color="#444" />
+                        <IonicIcon name="add-outline" size={32} color="#444" />
                         <Text style={styles.titleBtn} >Iniciar Nuevo Grupo</Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} >
@@ -194,9 +221,37 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
                         <Text style={{ fontWeight: '400', fontSize: 16, }} >Carga un grupo de comandos guardados.</Text>
                     </View>
                 </Pressable>
-            </View>
+                <Pressable onPress={addGMacro} style={styles.contBtn} >
+                    <View style={styles.contTitleBtn} >
+                        <IonicIcon name="add-outline" size={32} color="#444" />
+                        <Text style={styles.titleBtn} >Crear Macro</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row' }} >
+                        <Text style={{ fontWeight: '400', fontSize: 16, }} >Crear un grupo de comandos en un macro.</Text>
+                    </View>
+                </Pressable>
+                <Pressable onPress={() => props.navigation.navigate(routesNames.MacroCmdsList.name)} style={styles.contBtn} >
+                    <View style={styles.contTitleBtn} >
+                        <IonicIcon name="list-outline" size={32} color="#444" />
+                        <Text style={styles.titleBtn} >Cargar Macro</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row' }} >
+                        <Text style={{ fontWeight: '400', fontSize: 16, }} >Carga un grupo de comandos en un macro.</Text>
+                    </View>
+                </Pressable>
+                <Pressable onPress={() => props.navigation.navigate(routesNames.CalCRCCmds.name)} style={styles.contBtn} >
+                    <View style={styles.contTitleBtn} >
+                        <IonicIcon name="calculator-outline" size={32} color="#444" />
+                        <Text style={styles.titleBtn} >Calcular CRC</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row' }} >
+                        <Text style={{ fontWeight: '400', fontSize: 16, }} >Calcula CRC de los comandos.</Text>
+                    </View>
+                </Pressable>
+            </ScrollView>
             <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={"Cargando datos"} description={"Obteniendo datos de configuracion guardados..."} loading={true} />
             <ModalAddGroupFC title="Crear nuevo grupo" description="Escribe el nombre del grupo:" modalVisible={showModalAddGroup} closeModal={() => setShowModalAddGroup(false)} create={createGroup} />
+            <ModalAddGroupFC title="Crear nuevo macro" description="Escribe el nombre del macro:" modalVisible={showModalAddMacro} closeModal={() => setShowModalAddMacro(false)} create={createMacro} />
         </View>
     );
 }

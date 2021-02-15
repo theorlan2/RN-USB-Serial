@@ -52,7 +52,7 @@ export function startUsbListener(context: any, conectionSerial: ConectionSerial 
 
 export function addEventListenerReadData(callback: (value: any) => void, context: Context<any>) {
     if (callback)
-    DeviceEventEmitter.addListener(actions.ON_READ_DATA, callback, context);
+        DeviceEventEmitter.addListener(actions.ON_READ_DATA, callback, context);
 
 }
 
@@ -78,4 +78,14 @@ export function sendData(type: string, text: string) {
             break;
     }
 
+}
+
+export async function validateIsRun(): Promise<boolean> {
+    try {
+        const isServiceStarted = await RNSerialport.isServiceStarted();
+        return isServiceStarted;
+
+    } catch (err) {
+        return false;
+    }
 }

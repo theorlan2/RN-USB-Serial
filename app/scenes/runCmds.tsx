@@ -11,8 +11,6 @@ import { CmdModelView, GroupCmdModelView } from '../infrastructure/modelViews/Gr
 
 //
 import { addEventListenerReadData, sendData } from '../infrastructure/utils/serialConnection'
-import { downPositionElement, runCmds, upPositionElement } from '../infrastructure/utils/utilsGroups';
-import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
 import routesNames, { RootStackParamList } from '../routes/routesNames';
 
 type GroupCmdScreenNavigationProp = StackNavigationProp<
@@ -25,11 +23,10 @@ interface Props {
     route: RouteProp<RootStackParamList, 'GroupCmds'>,
 }
 
-const GroupCmdScreen: FunctionComponent<Props> = (props) => {
+const MacroCmdScreen: FunctionComponent<Props> = (props) => {
 
     const [times] = useState([25, 50, 100, 150, 200, 300, 400, 500, 1000, 2000]);
     const [cmds, setCmds] = useState([] as CmdModelView[]);
-    const [eventChange, setEventChange] = useState('');
     const [groupData, setGroupData] = useState({} as GroupCmdModelView)
     const [time, setTime] = useState(0)
     const [idCmd, setIdCmd] = useState(0)
@@ -107,10 +104,11 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
 
     function getDataFromStorage() {
         setShowModalLoading(true);
-        getStoreData('groupsCmds').then(r => {
+        getData('macrosCmds').then(r => {
             if (r) {
                 let listGroups = r;
                 let result = listGroups.find(item => item.id == props.route.params.id);
+                console.log(result);
                 if (result) {
                     setCmds(result.listCmds);
                     setGroupData(result);
@@ -125,13 +123,13 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     }
 
     function saveGroup() {
-        getStoreData('groupsCmds').then((r: GroupCmdModelView[]) => {
-            let listGroups = r ? r : [];
+        getData('macrosCmds').then((r: GroupCmdModelView[]) => {
+            let listMacros = r ? r : [];
             let result = r.findIndex(item => item.id == props.route.params.id);
             if (result > -1) {
-                listGroups[result].listCmds = cmds;
+                listMacros[result].listCmds = cmds;
             }
-            setStoreData("groupsCmds", listGroups);
+            storeData("macrosCmds", listMacros);
         })
     }
 
@@ -144,15 +142,44 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
         }, this);
     }
 
+    async function storeData(key: string, value: any) {
+        try {
+            const jsonValue = JSON.stringify(value)
+            await AsyncStorage.setItem('@' + key, jsonValue)
+        } catch (e) {
+            // saving error
+            Alert.alert('Error guardando', 'Ha ocurrido un error guardando.')
+        }
+    }
 
-    function _runCmds() {
-        runCmds(cmds, (cmd: string) => {
+    async function getData(key: string): Promise<any> {
+        let result = null;
+        try {
+            const jsonValue = await AsyncStorage.getItem('@' + key)
+            return jsonValue != null ? JSON.parse(jsonValue) : null;
+            result = jsonValue;
+        } catch (e) {
+            // error reading value
+        }
+        return result;
+    }
+
+    function doSetTimeout(cmd: string, time: number) {
+        setTimeout(function () {
             sendCmd(cmd);
             setLogCMD((prevState) => ([
                 ...prevState,
                 { isSend: true, cmd: cmd }
             ] as any));
-        })
+        }, time);
+    }
+
+    function runCmds() {
+        let _time_count = 0;
+        for (let i = 0; i < cmds.length; ++i) {
+            _time_count += cmds[i].timeOut;
+            doSetTimeout(cmds[i].cmd, _time_count);
+        }
     }
 
 
@@ -160,26 +187,14 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
         sendData('HEX', _cmd);
     }
 
-    function _upPositionElement(id: number) {
-        upPositionElement(id, cmds, (result => { setCmds(result); }));
-        setEventChange(Date.now().toString());
-    }
 
-    function _downPositionElement(id: number) {
-        downPositionElement(id, cmds, (result => {
-            console.log('r', result);
-            setCmds(result);
-        }));
-        setEventChange(Date.now().toString());
-    }
 
     return (
         <View style={{ flex: 1, flexDirection: 'column' }} >
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <ScrollView style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
 
-                {cmds.map((item, indx) => <CardCmd key={indx} position={indx} item={item} upPosition={_upPositionElement}
-                    downPosition={_downPositionElement} editCmd={editCmd} deleteCmd={deleteCmd} />)}
+                {cmds.map((item, indx) => <CardCmd key={indx} item={item} editCmd={editCmd} deleteCmd={deleteCmd} key={indx} />)}
                 <View>
                     {/*  */}
                     {showAddCmd && <View style={{ marginVertical: 10 }} >
@@ -218,10 +233,10 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                         </View>
                         <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
                             <View style={{ flex: 1, marginRight: 5 }} >
-                                <Button title="CANCELAR" onPress={() => setShowAddCmd(false)} color="red"   ></Button>
+                                <Button title="CANCELAR" onPress={() => setShowAddCmd(false)} color="red" disabled={disabledAdd} ></Button>
                             </View>
                             <View style={{ flex: 1, marginLeft: 5 }} >
-                                <Button title="Guardar" onPress={() => isEdit ? saveEditCmd(idCmd) : addCmd()} color="#00BBD3"  ></Button>
+                                <Button title="Guardar" onPress={() => isEdit ? saveEditCmd(idCmd) : addCmd()} color="#00BBD3" disabled={disabledAdd} ></Button>
                             </View>
                         </View>
                     </View>}
@@ -233,7 +248,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
 
                 {!showAddCmd && <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
                     <View style={{ flex: 1, marginLeft: 5 }} >
-                        <Button title="Agregar Comando" onPress={() => showAddCmd ? addCmd() : setShowAddCmd(true)} color="#00BBD3" ></Button>
+                        <Button title="Agregar Comando" onPress={() => showAddCmd ? addCmd() : setShowAddCmd(true)} color="#00BBD3" disabled={disabledAdd} ></Button>
                     </View>
                 </View>}
             </ScrollView>
@@ -242,11 +257,11 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                 {logCMD.map((item, indx) => <Text style={{ margin: 10 }} key={indx + item.cmd} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? 'Enviado:' : 'Recibido'}</Text>{item.cmd}</Text>)}
             </ScrollView>
             <View style={{ position: 'absolute', width: 60, height: 60, bottom: 16, right: 16, }} >
-                <Pressable onPress={_runCmds} style={{ backgroundColor: '#00BBD3', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end' }} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>
+                <Pressable onPress={runCmds} style={{ backgroundColor: '#00BBD3', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end' }} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>
             </View>
             <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={isSave ? "Guardando datos" : "Cargando datos"} description={isSave ? "Guardando datos de configuracion..." : "Obteniendo datos de configuracion guardados..."} loading={true} />
         </View>
     );
 }
 
-export default GroupCmdScreen;
+export default MacroCmdScreen;

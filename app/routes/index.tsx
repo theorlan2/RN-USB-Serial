@@ -14,6 +14,9 @@ import routesNames from './routesNames';
 import GroupCmdsListScreen from '../scenes/groupCmdsList';
 import { useSerialStatus } from '../infrastructure/contexts/serialStatusContext';
 import HeaderRight from '../components/Layout/HeaderRight';
+import MacroCmdsListScreen from '../scenes/macroCmdsList';
+import MacroCmdScreen from '../scenes/macrosCmds';
+import CalCRCCmdScreen from '../scenes/CalCRCCmds';
 
 export default function App() {
 
@@ -45,6 +48,15 @@ export default function App() {
                     title: "Lista de grupos",
                 }} component={GroupCmdsListScreen} />
                 <Stack.Screen name="Configuration" options={{ title: "Configuracion" }} component={ConfigurationScreen} />
+                <Stack.Screen name={routesNames.MacroCmdsList.name} options={{
+                    title: "Lista de macros",
+                }} component={MacroCmdsListScreen} />
+                <Stack.Screen name={routesNames.MacroCmds.name} options={{
+                    title: "Macro",
+                }} component={MacroCmdScreen} />
+                <Stack.Screen name={routesNames.CalCRCCmds.name} options={{
+                    title: "Calculadora CRC",
+                }} component={CalCRCCmdScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );
