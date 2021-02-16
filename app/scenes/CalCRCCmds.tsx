@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Picker } from '@react-native-picker/picker'
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -9,7 +8,6 @@ import {
     crc16modbus
 } from 'crc';
 //
-import { addEventListenerReadData, sendData } from '../infrastructure/utils/serialConnection'
 import routesNames, { RootStackParamList } from '../routes/routesNames';
 
 type CalCRCCmdScreenNavigationProp = StackNavigationProp<
@@ -44,9 +42,9 @@ const CalCRCCmdScreen: FunctionComponent<Props> = (props) => {
                 break;
 
             case 'crc16Modbus':
+                _result = crc16modbus(r).toString(16);
                 break;
             default:
-                _result = crc16modbus(r).toString(16);
                 break;
         }
 
