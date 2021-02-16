@@ -1,13 +1,30 @@
 import { CmdModelView } from "../modelViews/CmdModelView";
 
-
-
+let listTimeOuts = [] as any[];
+let countTimeOut = 0;
 function doSetTimeout(cmd: string, time: number, callBack: (cmd: string) => void) {
-    setTimeout(() => {
+    if (countTimeOut > 0) {
+        countTimeOut++;
+    }
+    listTimeOuts[countTimeOut] = setTimeout(() => {
         if (callBack)
             callBack(cmd);
+    }, time);
+    if (countTimeOut == 0) {
+        countTimeOut++;
     }
-        , time);
+}
+
+export function stopTimeout(indx: number, listCmds?: CmdModelView[]) {
+    if (listCmds) {
+        for (let index = indx; index < listCmds.length; index++) {
+            clearTimeout(listTimeOuts[index]);
+        }
+    } else {
+        console.log('indx', indx, listTimeOuts[indx])
+        clearTimeout(listTimeOuts[indx]);
+        console.log('indx', indx, listTimeOuts[indx])
+    }
 }
 
 export function runCmds(cmds: CmdModelView[], callBack: (cmd: string) => void) {
@@ -38,7 +55,6 @@ export function downPositionElement(id: number, cmds: CmdModelView[], callBack: 
     let indx = cmds.findIndex(item => item.id == id);
     let result = moveArrayItemToNewIndex(_cmds, indx, (indx - 1))
     _cmds = result;
-    console.log(indx, (indx - 1));
     if (callBack)
         callBack(_cmds);
 }

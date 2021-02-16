@@ -13,6 +13,7 @@ export type RootStackParamList = {
     CalCRCCmds: undefined,
     RunCmds: {
         id?: number,
+        run?: boolean,
     },
 };
 
