@@ -92,7 +92,6 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                 timeOut: time,
                 idGroup: props.route.params.id.toString()
             };
-
             return [
                 ...prevState
             ];

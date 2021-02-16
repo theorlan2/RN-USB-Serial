@@ -7,6 +7,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 interface Props {
     item: CmdModelView;
     position: number;
+    isMacro: boolean;
     editCmd(value: number): void;
     deleteCmd(value: number): void;
     upPosition(value: number): void;
@@ -28,22 +29,22 @@ const CardCmd: FunctionComponent<Props> = (props) => {
                     onPress: () => console.log("Cancel Pressed"),
                     style: "cancel"
                 },
-                { text: "Si, eliminar", onPress: () =>  props.deleteCmd(props.item.id)}
+                { text: "Si, eliminar", onPress: () => props.deleteCmd(props.item.id) }
             ])
     }
 
-    
+
     return (
         <View style={{ marginVertical: 5, backgroundColor: '#fff', elevation: 2, padding: 10, flexDirection: 'row' }} >
             <View style={{ flex: 1, flexDirection: 'column' }} >
                 <View style={{ flex: 1 }} >
-                    <Text style={{ fontWeight: '500', fontSize: 18 }} >{props.item.cmd}</Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16, }} >{props.item.title}</Text>
                 </View>
+                {!props.isMacro && <View style={{ flex: 1 }} >
+                    <Text style={{ fontWeight: '500', fontSize: 18 }} >{props.item.cmd}</Text>
+                </View>}
                 <View style={{ flex: 1 }} >
                     <Text style={{ fontWeight: 'bold', fontSize: 18 }} >{props.item.timeOut + ' ms'}</Text>
-                </View>
-                <View style={{ flex: 1 }} >
-                    <Text style={{ fontWeight: 'bold', fontSize: 16, }} >{props.item.title}</Text>
                 </View>
                 <View style={{ flex: 1, justifyContent: 'flex-start', flexDirection: 'row', marginVertical: 5 }} >
                     <Pressable style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffcdd2', borderRadius: 50, width: 45, height: 45, marginHorizontal: 8 }} onPress={deleteCMD} ><IonicIcon name="trash-outline" size={24} color="red" /></Pressable>
@@ -65,6 +66,10 @@ const CardCmd: FunctionComponent<Props> = (props) => {
             </View>
         </View>
     );
+}
+
+CardCmd.defaultProps = {
+    isMacro: false
 }
 
 export default CardCmd;
