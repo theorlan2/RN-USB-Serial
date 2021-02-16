@@ -46,8 +46,9 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
     }
 
     function openGroup(id: number) {
-        props.navigation.navigate(routesNames.GroupCmds.name, { id: id });
+        props.navigation.navigate(routesNames.RunCmds.name, { id: id });
     }
+    
     function deleteGroup(id: number) {
         Alert.alert("¿Desas eliminar este grupo?", "Si eliminas el grupo deberas crear uno de nuevo.",
             [

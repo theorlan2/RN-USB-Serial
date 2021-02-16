@@ -1,4 +1,4 @@
-import { CmdModelView } from "../modelViews/GroupCmd";
+import { CmdModelView } from "../modelViews/CmdModelView";
 
 
 
@@ -14,7 +14,13 @@ export function runCmds(cmds: CmdModelView[], callBack: (cmd: string) => void) {
     let _time_count = 0;
     for (let i = 0; i < cmds.length; ++i) {
         _time_count += cmds[i].timeOut;
-        doSetTimeout(cmds[i].cmd, _time_count, callBack);
+        if (cmds[i].isMacro) {
+            for (let e = 0; e < cmds[i].listCmds.length; ++e) {
+                doSetTimeout(cmds[i].listCmds[e].cmd, _time_count, callBack);
+            }
+        } else {
+            doSetTimeout(cmds[i].cmd, _time_count, callBack);
+        }
     }
 }
 

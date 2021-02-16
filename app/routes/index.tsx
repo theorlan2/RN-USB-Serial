@@ -17,6 +17,8 @@ import HeaderRight from '../components/Layout/HeaderRight';
 import MacroCmdsListScreen from '../scenes/macroCmdsList';
 import MacroCmdScreen from '../scenes/macrosCmds';
 import CalCRCCmdScreen from '../scenes/CalCRCCmds';
+import { runCmds } from '../infrastructure/utils/utilsGroups';
+import RunCmdScreen from '../scenes/runCmds';
 
 export default function App() {
 
@@ -57,6 +59,9 @@ export default function App() {
                 <Stack.Screen name={routesNames.CalCRCCmds.name} options={{
                     title: "Calculadora CRC",
                 }} component={CalCRCCmdScreen} />
+                <Stack.Screen name={routesNames.RunCmds.name} options={{
+                    title: "Corriendo Comandos",
+                }} component={RunCmdScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );
