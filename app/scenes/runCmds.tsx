@@ -44,6 +44,15 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
         }
     }, []);
 
+    useEffect(() => {
+        if (props.route.params && props.route.params.run) {
+            if ((cmds.length > 0 || listMacros.length > 0) && !isStart) {
+                setIsStart(true);
+                _runCmds();
+            }
+        }
+    }, [cmds, listMacros]);
+
     function getDataFromStorage() {
         setShowModalLoading(true);
         getStoreData('groupsCmds').then(r => {
@@ -65,15 +74,10 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
                         setListMacros(listMacros);
                     }
                 }
+            }).then(() => {
+                setShowModalLoading(false);
             })
-        }).then(() => {
-            setShowModalLoading(false);
-        }).then(() => {
-            if (props.route.params && props.route.params.run) {
-                _runCmds();
-            }
-
-        });
+        }).then(() => { });
     }
 
 
@@ -132,6 +136,7 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
     function clearLog() {
         setLogCMD([]);
     }
+
     function sendCmd(_cmd: string) {
         sendData('HEX', _cmd);
     }
