@@ -1,14 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Picker } from '@react-native-picker/picker'
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, Button, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
-import { definitions, RNSerialport } from 'react-native-serialport';
-import IonicIcon from 'react-native-vector-icons/Ionicons';
+import { Alert, ScrollView, StatusBar, StyleSheet, View } from 'react-native'
 import CardGroup from '../components/GroupsCmd/CardGroup';
 import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
+import { getStoreData } from '../infrastructure/utils/utilsStore';
 //
-import { ConectionSerial, } from '../infrastructure/utils/serialConnection'
 import routesNames, { RootStackParamList } from '../routes/routesNames';
 //
 type GroupCmdListScreenNavigationProp = StackNavigationProp<
@@ -23,7 +20,7 @@ interface Props {
 const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
 
     const [groupsCmdsData, setGroupsCmdsData] = useState([] as GroupCmdModelView[]);
-    const [showModalLoading, setShowModalLoading] = useState(true);
+    const [showModalLoading, setShowModalLoading] = useState(false);
 
     useEffect(() => {
         getDataFromStorage();
@@ -32,7 +29,7 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
 
     function getDataFromStorage() {
         setShowModalLoading(true);
-        getData('groupsCmds').then(r => {
+        getStoreData('groupsCmds').then(r => {
             if (r) {
                 setGroupsCmdsData(r);
             }
@@ -48,7 +45,7 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
     function openGroup(id: number) {
         props.navigation.navigate(routesNames.RunCmds.name, { id: id });
     }
-    
+
     function deleteGroup(id: number) {
         Alert.alert("¿Desas eliminar este grupo?", "Si eliminas el grupo deberas crear uno de nuevo.",
             [
@@ -59,28 +56,6 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
                 },
                 { text: "Si, eliminar", onPress: () => console.log("OK Pressed") }
             ])
-    }
-
-    async function storeData(key: string, value: any) {
-        try {
-            const jsonValue = JSON.stringify(value)
-            await AsyncStorage.setItem('@' + key, jsonValue)
-        } catch (e) {
-            // saving error
-            Alert.alert('Error guardando', 'Ha ocurrido un error guardando.')
-        }
-    }
-
-    async function getData(key: string): Promise<any> {
-        let result = null;
-        try {
-            const jsonValue = await AsyncStorage.getItem('@' + key)
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-            result = jsonValue;
-        } catch (e) {
-            // error reading value
-        }
-        return result;
     }
 
 

@@ -1,7 +1,7 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Pressable, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
+import React, { FunctionComponent, useEffect, useRef, useState } from 'react'
+import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native'
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import CardCmd from '../components/GroupsCmd/CardCmd';
 import ModalInfoFC from '../components/ModalInfoFC';
@@ -33,8 +33,8 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
     const [groupData, setGroupData] = useState({} as GroupCmdModelView);
     const [listMacros, setListMacros] = useState([] as MacroCmdModelView[]);
     const [eventChange, setEventChange] = useState('');
-    const [scrollViewRef, setScrollView] = useState({} as ScrollView);
-    const [scrollViewRef1, setScrollViewRef1] = useState({} as ScrollView);
+    const scrollViewRef = useRef({} as ScrollView);
+    const scrollViewRef1 = useRef({} as ScrollView);
 
     useEffect(() => {
         if (props.route.params && props.route.params.id) {
@@ -77,7 +77,7 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
                 ...prevState,
                 { isSend: false, cmd: data.payload }
             ] as any));
-            scrollViewRef.scrollToEnd({ animated: true })
+            scrollViewRef.current.scrollToEnd({ animated: true })
         }, this);
     }
 
@@ -85,7 +85,7 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
         let count = 0;
         runCmds(cmds, (cmd: string) => {
             if (listCmdsY[count]) {
-                scrollViewRef1.scrollTo({
+                scrollViewRef1.current.scrollTo({
                     animated: true,
                     y: listCmdsY[count]
                 });
@@ -96,7 +96,7 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
                 ...prevState,
                 { isSend: true, cmd: cmd }
             ] as any));
-            scrollViewRef.scrollToEnd({ animated: true });
+            scrollViewRef.current.scrollToEnd({ animated: true });
         })
     }
 
@@ -123,20 +123,17 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
     return (
         <View style={{ flex: 1, flexDirection: 'column' }} >
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
-            <ScrollView ref={ref => { setScrollViewRef1(ref); }} style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
+            <ScrollView ref={scrollViewRef1} style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
                 {cmds.map((item, indx) => <View key={indx} onLayout={event => {
-                    const { layout } = event.nativeEvent;
-                    console.log(layout.y)
-                    listCmdsY.push(layout.y);
+                    const { layout } = event.nativeEvent; listCmdsY.push(layout.y);
                 }} ><CardCmd item={item} downPosition={_downPositionElement} upPosition={_upPositionElement} position={indx} /></View>)}
                 <View>
                     {cmds.length < 1 && <View style={{ marginVertical: 10 }} >
                         <Text style={{ textAlign: 'center' }} >No hay Comandos creados</Text>
                     </View>}
-                    {/*  */}
                 </View>
             </ScrollView>
-            <ScrollView ref={ref => { setScrollView(ref); }} style={{ flex: 1, width: '100%', backgroundColor: '#CFD8DC' }} onContentSizeChange={() => {}} >
+            <ScrollView ref={scrollViewRef} style={{ flex: 1, width: '100%', backgroundColor: '#CFD8DC' }} onContentSizeChange={() => { }} >
                 <Text style={{ margin: 10 }} >Log:</Text>
                 {logCMD.map((item, indx) => <Text style={{ margin: 10 }} key={indx + item.cmd} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? 'Enviado:' : 'Recibido'}</Text>{item.cmd}</Text>)}
             </ScrollView>
