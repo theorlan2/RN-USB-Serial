@@ -1,8 +1,9 @@
 import React, { FunctionComponent } from 'react';
 import { View, Text, Pressable, ToastAndroid, Alert } from 'react-native';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
-import { CmdModelView, GroupCmdModelView } from '../../infrastructure/modelViews/GroupCmd';
 import Clipboard from '@react-native-clipboard/clipboard';
+//
+import { CmdModelView } from '../../infrastructure/modelViews/CmdModelView';
 
 interface Props {
     item: CmdModelView;

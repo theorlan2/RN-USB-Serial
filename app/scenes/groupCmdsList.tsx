@@ -36,14 +36,11 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
         }).then(() => {
             setShowModalLoading(false);
         })
-            .then(() => {
-            })
-            .catch(() => {
-            });
+            .catch(() => { });
     }
 
     function openGroup(id: number) {
-        props.navigation.navigate(routesNames.RunCmds.name, { id: id });
+        props.navigation.navigate(routesNames.GroupCmds.name, { id: id });
     }
 
     function deleteGroup(id: number) {

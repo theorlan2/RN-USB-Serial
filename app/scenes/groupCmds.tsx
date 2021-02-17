@@ -7,9 +7,7 @@ import { Alert, Button, Pressable, ScrollView, StatusBar, Text, TextInput, View 
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import CardCmd from '../components/GroupsCmd/CardCmd';
 import ModalInfoFC from '../components/ModalInfoFC';
-import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
-import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
-import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd';
+import { CmdModelView, GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 
 //
 import { addEventListenerReadData, sendData } from '../infrastructure/utils/serialConnection'
@@ -31,16 +29,14 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
 
     const [times] = useState([25, 50, 100, 150, 200, 300, 400, 500, 1000, 2000]);
     const [cmds, setCmds] = useState([] as CmdModelView[]);
-    const [listMacros, setListMacros] = useState([] as MacroCmdModelView[]);
-    const [macroSelect, setMacroSelect] = useState(0 as number);
     const [eventChange, setEventChange] = useState('');
     const [groupData, setGroupData] = useState({} as GroupCmdModelView)
     const [time, setTime] = useState(0)
     const [idCmd, setIdCmd] = useState(0)
     const [title, setTitle] = useState('');
     const [cmd, setCmd] = useState('');
+    const [disabledAdd, setDisabledAdd] = useState(false);
     const [showAddCmd, setShowAddCmd] = useState(false);
-    const [showAddMacro, setShowAddMacro] = useState(false);
     const [isSave, setIsSave] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [logCMD, setLogCMD] = useState([]);
@@ -51,11 +47,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
             getDataFromStorage();
             eventOnRead();
         }
-    }, []);
-
-    function addMacro() {
-
-    }
+    }, [])
 
     function addCmd() {
         setCmds((prevState) => ([
@@ -65,7 +57,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                 cmd: cmd,
                 timeOut: time,
                 title: title,
-                idGroup: props.route.params.id
+                idGroup: 0,
             }
         ]));
 
@@ -98,7 +90,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                 title: title,
                 cmd: cmd,
                 timeOut: time,
-                idGroup: props.route.params.id
+                idGroup: props.route.params.id.toString()
             };
             return [
                 ...prevState
@@ -111,16 +103,6 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     function deleteCmd(id: number) {
         setCmds(cmds.filter(item => item.id != id));
     }
-
-
-    function editMacro(id: number) {
-
-    }
-
-
-    function saveEditMacro(id: number) {
-    }
-
 
     function getDataFromStorage() {
         setShowModalLoading(true);
@@ -136,17 +118,9 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                 }
             }
         }).then(() => {
-            getStoreData('macrosCmds').then(r => {
-                if (r) {
-                    let listMacros = r as MacroCmdModelView[];
-                    if (listMacros) {
-                        setListMacros(listMacros);
-                    }
-                }
-            })
-        }).then(() => {
             setShowModalLoading(false);
-        }).then(() => { });
+        }).then(() => {
+        });
     }
 
     function saveGroup() {
@@ -243,31 +217,10 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                         </View>
                         <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
                             <View style={{ flex: 1, marginRight: 5 }} >
-                                <Button title="CANCELAR" onPress={() => { setShowAddCmd(false); setIsEdit(false); }} color="red"   ></Button>
+                                <Button title="CANCELAR" onPress={() => setShowAddCmd(false)} color="red"   ></Button>
                             </View>
                             <View style={{ flex: 1, marginLeft: 5 }} >
                                 <Button title="Guardar" onPress={() => isEdit ? saveEditCmd(idCmd) : addCmd()} color="#00BBD3"  ></Button>
-                            </View>
-                        </View>
-                    </View>}
-                    {showAddMacro && <View>
-                        <View style={{ marginVertical: 10 }} >
-                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Tipo:</Text>
-                            <View style={{ backgroundColor: '#fff', elevation: 2 }} >
-                                <Picker
-                                    selectedValue={macroSelect}
-                                    style={{ height: 50, width: '100%' }}
-                                    onValueChange={(itemValue, itemIndex) => setMacroSelect(itemValue)}>
-                                    {listMacros.map((item) => <Picker.Item key={'value-time-' + item} label={item.title} value={item.id} />)}
-                                </Picker>
-                            </View>
-                        </View>
-                        <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
-                            <View style={{ flex: 1, marginRight: 5 }} >
-                                <Button title="CANCELAR" onPress={() => { setShowAddMacro(false); setIsEdit(false); }} color="red"   ></Button>
-                            </View>
-                            <View style={{ flex: 1, marginLeft: 5 }} >
-                                <Button title="Guardar" onPress={() => isEdit ? saveEditMacro(macroSelect) : addMacro()} color="#00BBD3"  ></Button>
                             </View>
                         </View>
                     </View>}
@@ -277,14 +230,9 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                     {/*  */}
                 </View>
 
-                {!showAddCmd && !showAddMacro && <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
-                    <View style={{ flex: 1, flexDirection: 'row' }} >
-                        <View style={{ flex: 1, marginRight: 5 }} >
-                            <Button title="Agregar Macro" onPress={() => showAddMacro ? addMacro() : setShowAddMacro(true)} color="#00BBD3" ></Button>
-                        </View>
-                        <View style={{ flex: 1, marginLeft: 5 }} >
-                            <Button title="Agregar Comando" onPress={() => showAddCmd ? addCmd() : setShowAddCmd(true)} color="#00BBD3" ></Button>
-                        </View>
+                {!showAddCmd && <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
+                    <View style={{ flex: 1, marginLeft: 5 }} >
+                        <Button title="Agregar Comando" onPress={() => showAddCmd ? addCmd() : setShowAddCmd(true)} color="#00BBD3" ></Button>
                     </View>
                 </View>}
             </ScrollView>

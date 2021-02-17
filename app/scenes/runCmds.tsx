@@ -10,7 +10,7 @@ import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd';
 //
 import { addEventListenerReadData, sendData } from '../infrastructure/utils/serialConnection'
-import { downPositionElement, runCmds, upPositionElement } from '../infrastructure/utils/utilsGroups';
+import { downPositionElement, runCmds, stopTimeout, upPositionElement } from '../infrastructure/utils/utilsGroups';
 import { getStoreData } from '../infrastructure/utils/utilsStore';
 import routesNames, { RootStackParamList } from '../routes/routesNames';
 
@@ -33,6 +33,7 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
     const [groupData, setGroupData] = useState({} as GroupCmdModelView);
     const [listMacros, setListMacros] = useState([] as MacroCmdModelView[]);
     const [eventChange, setEventChange] = useState('');
+    const [isStart, setIsStart] = useState(false);
     const scrollViewRef = useRef({} as ScrollView);
     const scrollViewRef1 = useRef({} as ScrollView);
 
@@ -67,7 +68,12 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
             })
         }).then(() => {
             setShowModalLoading(false);
-        }).then(() => { });
+        }).then(() => {
+            if (props.route.params && props.route.params.run) {
+                _runCmds();
+            }
+
+        });
     }
 
 
@@ -81,8 +87,15 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
         }, this);
     }
 
+    function _stopCmds() {
+        let lastIndex = 5;
+        stopTimeout(lastIndex, cmds);
+        setIsStart(false);
+    }
+
     function _runCmds() {
         let count = 0;
+        setIsStart(true);
         runCmds(cmds, (cmd: string) => {
             if (listCmdsY[count]) {
                 scrollViewRef1.current.scrollTo({
@@ -90,6 +103,7 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
                     y: listCmdsY[count]
                 });
             }
+            stopTimeout(count);
             count++;
             sendCmd(cmd);
             setLogCMD((prevState) => ([
@@ -115,6 +129,9 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
     }
 
 
+    function clearLog() {
+        setLogCMD([]);
+    }
     function sendCmd(_cmd: string) {
         sendData('HEX', _cmd);
     }
@@ -137,9 +154,15 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
                 <Text style={{ margin: 10 }} >Log:</Text>
                 {logCMD.map((item, indx) => <Text style={{ margin: 10 }} key={indx + item.cmd} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? 'Enviado:' : 'Recibido'}</Text>{item.cmd}</Text>)}
             </ScrollView>
-            <View style={{ position: 'absolute', width: 60, height: 60, bottom: 16, right: 16, }} >
+            {logCMD.length > 10 && <View style={{ position: 'absolute', width: 40, height: 40, bottom: isStart ? 76 : 96, right: 20, }} >
+                <Pressable onPress={clearLog} style={{ backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 50, height: 50, alignSelf: 'flex-end' }} ><IonicIcon name="trash-outline" size={24} color="red" /></Pressable>
+            </View>}
+            {isStart && <View style={{ position: 'absolute', width: 40, height: 40, bottom: 26, right: 20, }} >
+                <Pressable onPress={_stopCmds} style={{ backgroundColor: 'red', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 50, height: 50, alignSelf: 'flex-end' }} ><IonicIcon name="stop-outline" size={24} color="#fff" /></Pressable>
+            </View>}
+            {!isStart && <View style={{ position: 'absolute', width: 60, height: 60, bottom: 16, right: 16, }} >
                 <Pressable onPress={_runCmds} style={{ backgroundColor: '#00BBD3', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end' }} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>
-            </View>
+            </View>}
             <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={"Cargando datos"} description={"Obteniendo datos de configuracion guardados..."} loading={true} />
         </View >
     );
