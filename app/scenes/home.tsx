@@ -30,9 +30,6 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
     const { setConnectStatus } = useSerialStatus();
 
     useEffect(() => {
-    }, []);
-
-    useEffect(() => {
         validateIsRun().then((r) => {
             if (!r)
                 getDataFromStorage();
@@ -53,7 +50,6 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
                     stopBits: r.stop_bits,
                     returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING as any
                 };
-                setConfigurationData(result);
             }
             return r;
         }).then((r) => {
@@ -162,7 +158,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
                     props.navigation.navigate(routesNames.GroupCmds.name, { id: id });
                 }, 500);
             });
-        }); 
+        });
     }
 
     function createMacro(name: string) {

@@ -1,35 +1,34 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Picker } from '@react-native-picker/picker'
-import React, { FunctionComponent, useEffect, useState } from 'react'
+import React, { FunctionComponent, useEffect, useRef, useState } from 'react'
 import { Alert, Button, Pressable, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
 import { definitions, RNSerialport } from 'react-native-serialport';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import CardCmd from '../components/GroupsCmd/CardCmd';
-import { CmdModelView } from '../infrastructure/modelViews/GroupCmd';
+import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
 
 //
 import { ConectionSerial, sendData, startUsbListener } from '../infrastructure/utils/serialConnection'
+import { downPositionElement, runCmds, stopTimeout, upPositionElement } from '../infrastructure/utils/utilsGroups';
 
+
+let listCmdsY = [];
 const TempCmdScreen: FunctionComponent = () => {
 
     const [times] = useState([25, 50, 100, 150, 200, 300, 400, 500, 1000, 2000]);
 
     const [cmds, setCmds] = useState([] as CmdModelView[]);
-    const [configurationData, setConfigurationData] = useState({} as ConectionSerial)
+    const [eventChange, setEventChange] = useState('');
     const [time, setTime] = useState(0)
     const [title, setTitle] = useState('');
     const [idCmd, setIdCmd] = useState(0)
     const [cmd, setCmd] = useState('')
     const [disabledAdd, setDisabledAdd] = useState(false)
     const [showAddCmd, setShowAddCmd] = useState(false)
-    const [logCMD, setLogCMD] = useState([]);
-    const [showModalLoading, setShowModalLoading] = useState(true);
-    const [serviceStart, setServiceStart] = useState(false);
-
-    useEffect(() => {
-        getDataFromStorage();
-        return () => { };
-    }, [configurationData])
+    const [logCMD, setLogCMD] = useState([] as any);
+    const [isStart, setIsStart] = useState(false);
+    const scrollViewRef = useRef({} as ScrollView);
+    const scrollViewRef2 = useRef({} as ScrollView);
 
 
     function addCmd() {
@@ -65,108 +64,48 @@ const TempCmdScreen: FunctionComponent = () => {
         setCmds(cmds.filter(item => item.id != id));
     }
 
+    function _stopCmds() {
+        let lastIndex = 5;
+        stopTimeout(lastIndex, cmds);
+        setIsStart(false);
+    }
 
-
-    function getDataFromStorage() {
-        setShowModalLoading(true);
-        getData('configuration').then(r => {
-            if (r) {
-                setConfigurationData({
-                    interface: "-1",
-                    baudRate: r.baud_rate,
-                    parity: r.parity,
-                    dataBits: r.data_bits,
-                    stopBits: r.stop_bits,
-                    returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING as any
+    function _runCmds() {
+        let count = 0;
+        setIsStart(true);
+        runCmds(cmds, (cmd: string) => {
+            if (listCmdsY[count]) {
+                scrollViewRef2.current.scrollTo({
+                    animated: true,
+                    y: listCmdsY[count]
                 });
             }
-        }).then(() => {
-            setShowModalLoading(false);
-        }).then(() => {
-            connectDevice();
-        });
-    }
-
-
-    async function storeData(key: string, value: any) {
-        try {
-            const jsonValue = JSON.stringify(value)
-            await AsyncStorage.setItem('@' + key, jsonValue)
-        } catch (e) {
-            // saving error
-            Alert.alert('Error guardando', 'Ha ocurrido un error guardando.')
-        }
-    }
-
-    async function getData(key: string): Promise<any> {
-        let result = null;
-        try {
-            const jsonValue = await AsyncStorage.getItem('@' + key)
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-            result = jsonValue;
-        } catch (e) {
-            // error reading value
-        }
-        return result;
-    }
-
-    function doSetTimeout(cmd: string, time: number) {
-        setTimeout(function () {
+            stopTimeout(count);
+            count++;
             sendCmd(cmd);
             setLogCMD((prevState) => ([
                 ...prevState,
                 { isSend: true, cmd: cmd }
             ] as any));
-        }, time);
-    }
-
-    function runCmds() {
-        let _time_count = 0;
-        for (let i = 0; i < cmds.length; ++i) {
-            _time_count += cmds[i].time;
-            doSetTimeout(cmds[i].cmd, _time_count);
-        }
-    }
-
-    function connectDevice(this: any) {
-        startUsbListener(this,
-            {
-                baudRate: configurationData.baudRate,
-                interface: configurationData.interface,
-                dataBits: +configurationData.dataBits,
-                stopBits: +configurationData.stopBits,
-                parity: +configurationData.parity,
-                returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING as any
-            },
-            //OnRead
-            (data) => {
-                setTimeout(() => {
-                    setLogCMD((prevState) => ([
-                        ...prevState,
-                        { isSend: false, cmd: data.payload }
-                    ] as any));
-                }, 500);
-            },
-            // onConnect
-            (data) => {
-                Alert.alert("Connect", "connexion a usb serial");
-            },
-            // OnDisconnect
-            (data) => {
-
-            },
-            // onError
-            (data) => {
-
-            },
-            // on StartService 
-            (data) => {
-                setServiceStart(true);
-            })
+            scrollViewRef.current.scrollToEnd({ animated: true });
+        })
     }
 
     function sendCmd(_cmd: string) {
         sendData('HEX', _cmd);
+    }
+
+
+    function _upPositionElement(id: number) {
+        upPositionElement(id, cmds, (result => { setCmds(result); }));
+        setEventChange(Date.now().toString());
+    }
+
+    function _downPositionElement(id: number) {
+        downPositionElement(id, cmds, (result => {
+            setCmds(result);
+        }));
+        setEventChange(Date.now().toString());
     }
 
     return (
@@ -174,7 +113,7 @@ const TempCmdScreen: FunctionComponent = () => {
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <ScrollView style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
 
-                {cmds.map((item, indx) => <CardCmd key={indx} item={item} editCmd={editCmd} deleteCmd={deleteCmd} key={indx} />)}
+                {cmds.map((item, indx) => <CardCmd isMacro={item.isMacro ? true : false} key={indx} item={item} editCmd={editCmd} deleteCmd={deleteCmd} key={indx} upPosition={_upPositionElement} downPosition={_downPositionElement} />)}
 
                 <View>
                     {/*  */}
@@ -238,7 +177,7 @@ const TempCmdScreen: FunctionComponent = () => {
                 {logCMD.map((item, indx) => <Text style={{ margin: 10 }} key={indx + item.cmd} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? 'Enviado:' : 'Recibido'}</Text>{item.cmd}</Text>)}
             </ScrollView>
             <View style={{ position: 'absolute', width: 60, height: 60, bottom: 16, right: 16, }} >
-                <Pressable onPress={runCmds} style={{ backgroundColor: '#00BBD3', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end' }} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>
+                <Pressable onPress={_runCmds} style={{ backgroundColor: '#00BBD3', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end' }} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>
             </View>
         </View>
     );

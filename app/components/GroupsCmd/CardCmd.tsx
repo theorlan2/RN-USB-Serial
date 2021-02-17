@@ -49,8 +49,8 @@ const CardCmd: FunctionComponent<Props> = (props) => {
                 </View>
                 <View style={{ flex: 1, justifyContent: 'flex-start', flexDirection: 'row', marginVertical: 5 }} >
                     <Pressable style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#ffcdd2', borderRadius: 50, width: 45, height: 45, marginHorizontal: 8 }} onPress={deleteCMD} ><IonicIcon name="trash-outline" size={24} color="red" /></Pressable>
-                    <Pressable style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#eee', borderRadius: 50, width: 45, height: 45, marginHorizontal: 8 }} onPress={() => { props.editCmd(props.item.id); }} ><IonicIcon name="create-outline" size={24} color="#444" /></Pressable>
-                    <Pressable style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#eee', borderRadius: 50, width: 45, height: 45, marginHorizontal: 8 }} onPress={copyCmd} ><IonicIcon name="clipboard-outline" size={24} color="#444" /></Pressable>
+                    {!props.isMacro && <Pressable style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#eee', borderRadius: 50, width: 45, height: 45, marginHorizontal: 8 }} onPress={() => { props.editCmd(props.item.id); }} ><IonicIcon name="create-outline" size={24} color="#444" /></Pressable>}
+                    {!props.isMacro && <Pressable style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#eee', borderRadius: 50, width: 45, height: 45, marginHorizontal: 8 }} onPress={copyCmd} ><IonicIcon name="clipboard-outline" size={24} color="#444" /></Pressable>}
                 </View>
             </View>
             <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center', maxWidth: 55 }} >

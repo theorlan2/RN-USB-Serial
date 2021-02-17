@@ -199,7 +199,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <ScrollView style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
 
-                {cmds.map((item, indx) => <CardCmd key={indx} position={indx} item={item} upPosition={_upPositionElement}
+                {cmds.map((item, indx) => <CardCmd isMacro={item.isMacro} key={indx} position={indx} item={item} upPosition={_upPositionElement}
                     downPosition={_downPositionElement} editCmd={editCmd} deleteCmd={deleteCmd} />)}
                 <View>
                     {/*  */}

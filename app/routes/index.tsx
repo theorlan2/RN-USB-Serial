@@ -44,7 +44,7 @@ export default function App() {
                     title: "Grupo de comandos",
                 }} component={GroupCmdScreen} />
                 <Stack.Screen name={routesNames.TempCmds.name} options={{
-                    title: "Envio de Comandos",
+                    title: "Enviar Comandos",
                 }} component={TempCmdScreen} />
                 <Stack.Screen name={routesNames.GroupCmdsList.name} options={{
                     title: "Lista de grupos",
