@@ -161,7 +161,7 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
                 <Text style={{ margin: 10 }} >Log:</Text>
                 {logCMD.map((item, indx) => <Text style={{ margin: 10 }} key={indx + item.cmd} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? 'Enviado:' : 'Recibido'}</Text>{item.cmd}</Text>)}
             </ScrollView>
-            {logCMD.length > 10 && <View style={{ position: 'absolute', width: 40, height: 40, bottom: isStart ? 76 : 96, right: 20, }} >
+            {logCMD.length > 10 && <View style={{ position: 'absolute', width: 40, height: 40, bottom: isStart ? 86 : 100, right: 20, }} >
                 <Pressable onPress={clearLog} style={{ backgroundColor: '#eee', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 50, height: 50, alignSelf: 'flex-end' }} ><IonicIcon name="trash-outline" size={24} color="red" /></Pressable>
             </View>}
             {isStart && <View style={{ position: 'absolute', width: 40, height: 40, bottom: 26, right: 20, }} >

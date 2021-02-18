@@ -247,7 +247,8 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                         </View>
                     </View>}
                     {showAddMacro && <View style={{ marginVertical: 10 }} >
-                        <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Tiempo de retraso:</Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center' }} >AGREGAR MACRO</Text>
+                        <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Macro:</Text>
                         <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                             <Picker
                                 selectedValue={macro}
