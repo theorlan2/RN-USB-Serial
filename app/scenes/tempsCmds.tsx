@@ -123,7 +123,7 @@ const TempCmdScreen: FunctionComponent = () => {
     function runCmds() {
         let _time_count = 0;
         for (let i = 0; i < cmds.length; ++i) {
-            _time_count += cmds[i].time;
+            _time_count += cmds[i].timeOut;
             doSetTimeout(cmds[i].cmd, _time_count);
         }
     }
