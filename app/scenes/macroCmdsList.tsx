@@ -42,8 +42,8 @@ const MacroCmdsListScreen: FunctionComponent<Props> = (props) => {
             });
     }
 
-    function openGroup(id: number) {
-        props.navigation.navigate(routesNames.GroupCmds.name, { id: id });
+    function openMacro(id: number) {
+        props.navigation.navigate(routesNames.MacroCmds.name, { id: id });
     }
     function deleteGroup(id: number) {
         Alert.alert("¿Desas eliminar este grupo?", "Si eliminas el grupo deberas crear uno de nuevo.",
@@ -100,7 +100,7 @@ const MacroCmdsListScreen: FunctionComponent<Props> = (props) => {
         <View style={{ flex: 1, flexDirection: 'column' }} >
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <ScrollView style={styles.mainCont}   >
-                {groupsCmdsData.map((item, key) => <CardGroup key={item.id + key} item={item} openGroup={openGroup} deleteGroup={deleteGroup} />)}
+                {groupsCmdsData.map((item, key) => <CardGroup key={item.id + key} item={item} openGroup={openMacro} deleteGroup={deleteGroup} />)}
             </ScrollView>
         </View>
     );

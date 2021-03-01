@@ -21,21 +21,20 @@ export function stopTimeout(indx: number, listCmds?: CmdModelView[]) {
             clearTimeout(listTimeOuts[index]);
         }
     } else {
-        console.log('indx', indx, listTimeOuts[indx])
         clearTimeout(listTimeOuts[indx]);
-        console.log('indx', indx, listTimeOuts[indx])
     }
 }
 
 export function runCmds(cmds: CmdModelView[], callBack: (cmd: string) => void) {
     let _time_count = 0;
     for (let i = 0; i < cmds.length; ++i) {
-        _time_count += cmds[i].timeOut;
         if (cmds[i].isMacro) {
             for (let e = 0; e < cmds[i].listCmds.length; ++e) {
+                _time_count += cmds[i].listCmds[e].timeOut;
                 doSetTimeout(cmds[i].listCmds[e].cmd, _time_count, callBack);
             }
         } else {
+            _time_count += cmds[i].timeOut;
             doSetTimeout(cmds[i].cmd, _time_count, callBack);
         }
     }

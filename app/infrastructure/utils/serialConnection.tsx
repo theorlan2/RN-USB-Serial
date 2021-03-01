@@ -4,7 +4,6 @@ import { RNSerialport, definitions, actions, ReturnedDataTypes } from "react-nat
 import { ParitiesEnum, DataBitsEnum, StopBitsEnum } from "../enums/configurationDataEnum";
 
 
-const idDispensers = ['01'];
 
 export const conectionSerialC = {
     baudRate: "9600",
@@ -37,6 +36,7 @@ export function startUsbListener(context: any, conectionSerial: ConectionSerial 
         onDisconnected,
         context
     );
+    
     DeviceEventEmitter.addListener(actions.ON_READ_DATA, onReadData, context);
     RNSerialport.setReturnedDataType(definitions.RETURNED_DATA_TYPES.HEXSTRING);
     if (_conectionSerial.baudRate) {
@@ -77,7 +77,6 @@ export function sendData(type: string, text: string) {
             RNSerialport.writeString(text);
             break;
     }
-
 }
 
 export async function validateIsRun(): Promise<boolean> {

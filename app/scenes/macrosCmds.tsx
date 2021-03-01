@@ -11,6 +11,8 @@ import { CmdModelView, GroupCmdModelView } from '../infrastructure/modelViews/Gr
 
 //
 import { addEventListenerReadData, sendData } from '../infrastructure/utils/serialConnection'
+import { downPositionElement, upPositionElement } from '../infrastructure/utils/utilsGroups';
+import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
 import routesNames, { RootStackParamList } from '../routes/routesNames';
 
 type GroupCmdScreenNavigationProp = StackNavigationProp<
@@ -27,22 +29,22 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
 
     const [times] = useState([25, 50, 100, 150, 200, 300, 400, 500, 1000, 2000]);
     const [cmds, setCmds] = useState([] as CmdModelView[]);
-    const [groupData, setGroupData] = useState({} as GroupCmdModelView)
-    const [time, setTime] = useState(0)
+    const [time, setTime] = useState(25)
     const [idCmd, setIdCmd] = useState(0)
     const [title, setTitle] = useState('');
     const [cmd, setCmd] = useState('');
     const [disabledAdd, setDisabledAdd] = useState(false);
     const [showAddCmd, setShowAddCmd] = useState(false);
-    const [isSave, setIsSave] = useState(false);
+    const [haveChanges, setHaveChanges] = useState(false);
+    const [isSaveCmd, setIsSaveCmd] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
-    const [logCMD, setLogCMD] = useState([]);
     const [showModalLoading, setShowModalLoading] = useState(false);
+    const [eventChange, setEventChange] = useState('');
+
 
     useEffect(() => {
         if (props.route.params && props.route.params.id) {
             getDataFromStorage();
-            eventOnRead();
         }
     }, [])
 
@@ -57,15 +59,12 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
                 idGroup: 0,
             }
         ]));
-
         setTimeout(() => {
             setTitle('');
             setCmd('');
-            setTime(10);
+            setTime(25);
         }, 100);
-        setTimeout(() => {
-            saveGroup();
-        }, 500);
+        setHaveChanges(true);
     }
 
 
@@ -77,6 +76,7 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
         setTime(r?.timeOut);
         setIdCmd(id);
         setShowAddCmd(true);
+        setHaveChanges(true);
     }
 
     function saveEditCmd(id: number) {
@@ -87,31 +87,35 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
                 title: title,
                 cmd: cmd,
                 timeOut: time,
-                idGroup: props.route.params.id.toString()
+                idGroup: props.route.params.id
             };
-
             return [
                 ...prevState
             ];
         });
+        setTitle('');
+        setCmd('');
+        setTime(25);
         setIdCmd(0);
         setIsEdit(false);
+        setHaveChanges(true);
+        setShowAddCmd(false);
     }
 
     function deleteCmd(id: number) {
         setCmds(cmds.filter(item => item.id != id));
+        setHaveChanges(true);
     }
 
     function getDataFromStorage() {
+        setIsSaveCmd(false);
         setShowModalLoading(true);
-        getData('macrosCmds').then(r => {
+        getStoreData('macrosCmds').then(r => {
             if (r) {
                 let listGroups = r;
                 let result = listGroups.find(item => item.id == props.route.params.id);
-                console.log(result);
                 if (result) {
                     setCmds(result.listCmds);
-                    setGroupData(result);
                 } else {
                     props.navigation.navigate(routesNames.Home.name);
                 }
@@ -122,79 +126,43 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
         });
     }
 
-    function saveGroup() {
-        getData('macrosCmds').then((r: GroupCmdModelView[]) => {
-            let listMacros = r ? r : [];
+    function saveMacro() {
+        setIsSaveCmd(true);
+        setHaveChanges(false);
+        setShowModalLoading(true);
+        getStoreData('macrosCmds').then((r: GroupCmdModelView[]) => {
+            let listGroups = r ? r : [];
             let result = r.findIndex(item => item.id == props.route.params.id);
             if (result > -1) {
-                listMacros[result].listCmds = cmds;
+                listGroups[result].listCmds = cmds;
             }
-            storeData("macrosCmds", listMacros);
+            setStoreData("macrosCmds", listGroups);
+            setShowModalLoading(false);
         })
     }
 
-    function eventOnRead(this: any) {
-        addEventListenerReadData((data) => {
-            setLogCMD((prevState) => ([
-                ...prevState,
-                { isSend: false, cmd: data.payload }
-            ] as any));
-        }, this);
+
+    function _upPositionElement(id: number) {
+        upPositionElement(id, cmds, (result => { setCmds(result); }));
+        setEventChange(Date.now().toString());
+        setHaveChanges(true);
     }
 
-    async function storeData(key: string, value: any) {
-        try {
-            const jsonValue = JSON.stringify(value)
-            await AsyncStorage.setItem('@' + key, jsonValue)
-        } catch (e) {
-            // saving error
-            Alert.alert('Error guardando', 'Ha ocurrido un error guardando.')
-        }
+    function _downPositionElement(id: number) {
+        downPositionElement(id, cmds, (result => {
+            setCmds(result);
+        }));
+        setEventChange(Date.now().toString());
+        setHaveChanges(true);
     }
-
-    async function getData(key: string): Promise<any> {
-        let result = null;
-        try {
-            const jsonValue = await AsyncStorage.getItem('@' + key)
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-            result = jsonValue;
-        } catch (e) {
-            // error reading value
-        }
-        return result;
-    }
-
-    function doSetTimeout(cmd: string, time: number) {
-        setTimeout(function () {
-            sendCmd(cmd);
-            setLogCMD((prevState) => ([
-                ...prevState,
-                { isSend: true, cmd: cmd }
-            ] as any));
-        }, time);
-    }
-
-    function runCmds() {
-        let _time_count = 0;
-        for (let i = 0; i < cmds.length; ++i) {
-            _time_count += cmds[i].timeOut;
-            doSetTimeout(cmds[i].cmd, _time_count);
-        }
-    }
-
-
-    function sendCmd(_cmd: string) {
-        sendData('HEX', _cmd);
-    }
-
-
 
     return (
         <View style={{ flex: 1, flexDirection: 'column' }} >
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <ScrollView style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
 
-                {cmds.map((item, indx) => <CardCmd key={indx} item={item} editCmd={editCmd} deleteCmd={deleteCmd} key={indx} />)}
+                {cmds.map((item, indx) => <CardCmd key={indx} item={item} editCmd={editCmd} deleteCmd={deleteCmd} upPosition={_upPositionElement}
+                    downPosition={_downPositionElement} key={indx} />)}
                 <View>
                     {/*  */}
                     {showAddCmd && <View style={{ marginVertical: 10 }} >
@@ -252,14 +220,10 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
                     </View>
                 </View>}
             </ScrollView>
-            <ScrollView style={{ flex: 1, width: '100%', backgroundColor: '#CFD8DC' }} contentContainerStyle={{}} >
-                <Text style={{ margin: 10 }} >Log:</Text>
-                {logCMD.map((item, indx) => <Text style={{ margin: 10 }} key={indx + item.cmd} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? 'Enviado:' : 'Recibido'}</Text>{item.cmd}</Text>)}
-            </ScrollView>
-            <View style={{ position: 'absolute', width: 60, height: 60, bottom: 16, right: 16, }} >
-                <Pressable onPress={runCmds} style={{ backgroundColor: '#00BBD3', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end' }} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>
+            <View style={{ position: 'absolute', bottom: 16, right: 16, }} >
+                <Pressable onPress={saveMacro} style={{ backgroundColor: haveChanges ? '#FFCA28' : '#00BBD3', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 45, height: 45, alignSelf: 'flex-end' }} ><IonicIcon name="save-outline" size={24} color="#fff" /></Pressable>
             </View>
-            <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={isSave ? "Guardando datos" : "Cargando datos"} description={isSave ? "Guardando datos de configuracion..." : "Obteniendo datos de configuracion guardados..."} loading={true} />
+            <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={isSaveCmd ? "Guardando datos" : "Cargando datos"} description={isSaveCmd ? "Guardando datos de configuracion..." : "Obteniendo datos de configuracion guardados..."} loading={true} />
         </View>
     );
 }
