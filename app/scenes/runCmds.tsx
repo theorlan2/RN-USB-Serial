@@ -12,7 +12,7 @@ import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd';
 import { addEventListenerReadData, sendData } from '../infrastructure/utils/serialConnection'
 import { downPositionElement, runCmds, stopTimeout, upPositionElement } from '../infrastructure/utils/utilsGroups';
 import { getStoreData } from '../infrastructure/utils/utilsStore';
-import routesNames, { RootStackParamList } from '../routes/routesNames';
+import { RootStackParamList } from '../routes/routesNames';
 
 type RunCmdScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -24,7 +24,7 @@ interface Props {
     route: RouteProp<RootStackParamList, 'RunCmds'>,
 }
 
-let listCmdsY = [];
+let listCmdsY = [] as number[];
 const RunCmdScreen: FunctionComponent<Props> = (props) => {
 
     const [cmds, setCmds] = useState([] as CmdModelView[]);
@@ -58,12 +58,12 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
         getStoreData('groupsCmds').then(r => {
             if (r) {
                 let listGroups = r;
-                let result = listGroups.find(item => item.id == props.route.params.id);
+                let result = listGroups.find((item: GroupCmdModelView) => item.id == props.route.params.id);
                 if (result) {
                     setCmds(result.listCmds);
                     setGroupData(result);
                 } else {
-                    props.navigation.navigate(routesNames.Home.name);
+                    props.navigation.navigate('Home');
                 }
             }
         }).then(() => {

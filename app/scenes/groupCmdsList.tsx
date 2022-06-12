@@ -1,12 +1,12 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { StackNavigationProp } from '@react-navigation/stack';
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, ScrollView, StatusBar, StyleSheet, View } from 'react-native'
-import CardGroup from '../components/GroupsCmd/CardGroup';
-import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
-import { getStoreData } from '../infrastructure/utils/utilsStore';
+import { Alert, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native'
+import { StackNavigationProp } from '@react-navigation/stack';
 //
-import routesNames, { RootStackParamList } from '../routes/routesNames';
+import CardGroup from '../components/GroupsCmd/CardGroup';
+import ModalInfoFC from '../components/ModalInfoFC';
+import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
+import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
+import { RootStackParamList } from '../routes/routesNames';
 //
 type GroupCmdListScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -32,6 +32,7 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
         getStoreData('groupsCmds').then(r => {
             if (r) {
                 setGroupsCmdsData(r);
+                setShowModalLoading(false);
             }
         }).then(() => {
             setShowModalLoading(false);
@@ -40,10 +41,12 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
     }
 
     function openGroup(id: number) {
-        props.navigation.navigate(routesNames.GroupCmds.name, { id: id });
+        props.navigation.navigate('GroupCmds', { id: id });
     }
 
-    function deleteGroup(id: number) {
+    function alertDelete(id: number) {
+
+
         Alert.alert("¿Desas eliminar este grupo?", "Si eliminas el grupo deberas crear uno de nuevo.",
             [
                 {
@@ -51,15 +54,21 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
                     onPress: () => console.log("Cancel Pressed"),
                     style: "cancel"
                 },
-                { text: "Si, eliminar", onPress: () => console.log("OK Pressed") }
+                { text: "Si, eliminar", onPress: () => deleteGroup(id) }
             ])
     }
+
+    function deleteGroup(id: number) {
+        let result = groupsCmdsData.filter((item: GroupCmdModelView) => item.id != id)
+        setStoreData('groupsCmds', result); 
+    }
+
 
 
 
     const styles = StyleSheet.create({
         mainCont: {
-            flex: 1, flexDirection: 'column', width: '96%', alignSelf: 'center'
+            flex: 1, flexDirection: 'column', width: '100%', alignSelf: 'center', paddingHorizontal: 10
         },
         contBtn: {
             marginVertical: 10, backgroundColor: '#fff', elevation: 2, padding: 10,
@@ -73,11 +82,15 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
     })
 
     return (
-        <View style={{ flex: 1, flexDirection: 'column' }} >
+        <View style={{ flex: 1, }} >
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <ScrollView style={styles.mainCont}   >
-                {groupsCmdsData.map((item, key) => <CardGroup key={item.id + key} item={item} openGroup={openGroup} deleteGroup={deleteGroup} />)}
+                {groupsCmdsData.length < 1 && <View style={{ marginVertical: 10, alignSelf: 'center', }} >
+                    <Text style={{ textAlign: 'center' }} >No hay Grupos creados</Text>
+                </View>}
+                {groupsCmdsData.map((item, key) => <CardGroup key={item.id + key} item={item} openGroup={openGroup} deleteGroup={alertDelete} />)}
             </ScrollView>
+            <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={"Cargando datos"} description={"Obteniendo datos de grupos guardados..."} loading={true} />
         </View>
     );
 }

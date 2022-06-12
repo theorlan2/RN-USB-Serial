@@ -1,12 +1,14 @@
+import React, { FunctionComponent, useEffect, useState } from 'react'
+import { Alert, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, ScrollView, StatusBar, StyleSheet,  View } from 'react-native'
-import IonicIcon from 'react-native-vector-icons/Ionicons';
-import CardGroup from '../components/GroupsCmd/CardGroup';
-import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 //
-import routesNames, { RootStackParamList } from '../routes/routesNames';
+import CardGroup from '../components/GroupsCmd/CardGroup';
+import ModalInfoFC from '../components/ModalInfoFC';
+import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
+import { RootStackParamList } from '../routes/routesNames';
+import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
+import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd';
 //
 type MacroCmdsListScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -19,17 +21,17 @@ interface Props {
 
 const MacroCmdsListScreen: FunctionComponent<Props> = (props) => {
 
-    const [groupsCmdsData, setGroupsCmdsData] = useState([] as GroupCmdModelView[]);
+    const [macrosCmdsData, setGroupsCmdsData] = useState([] as GroupCmdModelView[]);
     const [showModalLoading, setShowModalLoading] = useState(true);
 
     useEffect(() => {
         getDataFromStorage();
         return () => { };
-    }, [groupsCmdsData])
+    }, [macrosCmdsData])
 
     function getDataFromStorage() {
         setShowModalLoading(true);
-        getData('macrosCmds').then(r => {
+        getStoreData('macrosCmds').then(r => {
             if (r) {
                 setGroupsCmdsData(r);
             }
@@ -43,9 +45,9 @@ const MacroCmdsListScreen: FunctionComponent<Props> = (props) => {
     }
 
     function openMacro(id: number) {
-        props.navigation.navigate(routesNames.MacroCmds.name, { id: id });
+        props.navigation.navigate('MacroCmds', { id: id });
     }
-    function deleteGroup(id: number) {
+    function alertDelete(id: number) {
         Alert.alert("¿Desas eliminar este grupo?", "Si eliminas el grupo deberas crear uno de nuevo.",
             [
                 {
@@ -53,33 +55,14 @@ const MacroCmdsListScreen: FunctionComponent<Props> = (props) => {
                     onPress: () => console.log("Cancel Pressed"),
                     style: "cancel"
                 },
-                { text: "Si, eliminar", onPress: () => console.log("OK Pressed") }
+                { text: "Si, eliminar", onPress: () => deleteMacro(id) }
             ])
     }
 
-    async function storeData(key: string, value: any) {
-        try {
-            const jsonValue = JSON.stringify(value)
-            await AsyncStorage.setItem('@' + key, jsonValue)
-        } catch (e) {
-            // saving error
-            Alert.alert('Error guardando', 'Ha ocurrido un error guardando.')
-        }
+    function deleteMacro(id: number) {
+        let result = macrosCmdsData.filter((item: MacroCmdModelView) => item.id != id)
+        setStoreData('macrosCmds', result);
     }
-
-    async function getData(key: string): Promise<any> {
-        let result = null;
-        try {
-            const jsonValue = await AsyncStorage.getItem('@' + key)
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-            result = jsonValue;
-        } catch (e) {
-            // error reading value
-        }
-        return result;
-    }
-
-
 
     const styles = StyleSheet.create({
         mainCont: {
@@ -100,8 +83,12 @@ const MacroCmdsListScreen: FunctionComponent<Props> = (props) => {
         <View style={{ flex: 1, flexDirection: 'column' }} >
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <ScrollView style={styles.mainCont}   >
-                {groupsCmdsData.map((item, key) => <CardGroup key={item.id + key} item={item} openGroup={openMacro} deleteGroup={deleteGroup} />)}
+            {macrosCmdsData.length < 1 && <View style={{ marginVertical: 10, alignSelf: 'center', }} >
+                    <Text style={{ textAlign: 'center' }} >No hay Macros creados</Text>
+                </View>}
+                {macrosCmdsData.map((item, key) => <CardGroup key={item.id + key} item={item} openGroup={openMacro} deleteGroup={alertDelete} />)}
             </ScrollView>
+            <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={"Cargando datos"} description={"Obteniendo datos de macros guardados..."} loading={true} />
         </View>
     );
 }

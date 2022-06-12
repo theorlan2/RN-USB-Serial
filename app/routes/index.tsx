@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Pressable } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
@@ -7,7 +8,6 @@ import IonicIcon from 'react-native-vector-icons/Ionicons';
 import { navigation, navigationRef } from './rootNavigation';
 import HomeScreen from '../scenes/home';
 import ConfigurationScreen from '../scenes/configuration';
-import { Pressable, View } from 'react-native';
 import GroupCmdScreen from '../scenes/groupCmds';
 import TempCmdScreen from '../scenes/tempsCmds';
 import routesNames from './routesNames';
@@ -16,8 +16,7 @@ import { useSerialStatus } from '../infrastructure/contexts/serialStatusContext'
 import HeaderRight from '../components/Layout/HeaderRight';
 import MacroCmdsListScreen from '../scenes/macroCmdsList';
 import MacroCmdScreen from '../scenes/macrosCmds';
-import CalCRCCmdScreen from '../scenes/CalCRCCmds';
-import { runCmds } from '../infrastructure/utils/utilsGroups';
+import CalCRCCmdScreen from '../scenes/calCRCCmds'; 
 import RunCmdScreen from '../scenes/runCmds';
 
 export default function App() {

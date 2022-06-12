@@ -1,7 +1,7 @@
 
 export type RootStackParamList = {
     Home: undefined,
-    TempCmd: undefined,
+    TempCmds: undefined,
     GroupCmds: {
         id?: number,
     },

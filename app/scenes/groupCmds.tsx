@@ -6,10 +6,9 @@ import { Button, Pressable, ScrollView, StatusBar, Text, TextInput, View } from 
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 
 //
-import { addEventListenerReadData, sendData } from '../infrastructure/utils/serialConnection'
 import { downPositionElement, runCmds, upPositionElement } from '../infrastructure/utils/utilsGroups';
 import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
-import routesNames, { RootStackParamList } from '../routes/routesNames';
+import  { RootStackParamList } from '../routes/routesNames';
 import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
 import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 import CardCmd from '../components/GroupsCmd/CardCmd';
@@ -32,7 +31,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     const [cmds, setCmds] = useState([] as CmdModelView[]);
     const [macros, setMacros] = useState([] as MacroCmdModelView[]);
     const [eventChange, setEventChange] = useState('');
-    //  Form 
+    // 
     const [time, setTime] = useState(25)
     const [idCmd, setIdCmd] = useState(0)
     const [title, setTitle] = useState('');
@@ -70,8 +69,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
             setCmd('');
             setTime(25);
             setShowAddMacro(false);
-        }, 100);
-
+        }, 100); 
 
     }
 
@@ -144,7 +142,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                 if (result) {
                     setCmds(result.listCmds);
                 } else {
-                    props.navigation.navigate(routesNames.Home.name);
+                    props.navigation.navigate('Home');
                 }
             }
         }).then(async () => {
@@ -191,7 +189,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     }
 
     function _runCmds() {
-        props.navigation.navigate(routesNames.RunCmds.name, { id: props.route.params.id, run: true });
+        props.navigation.navigate('RunCmds', { id: props.route.params.id, run: true });
     }
 
     return (

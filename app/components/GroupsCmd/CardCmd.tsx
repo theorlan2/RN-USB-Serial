@@ -8,9 +8,9 @@ import { CmdModelView } from '../../infrastructure/modelViews/CmdModelView';
 interface Props {
     item: CmdModelView;
     position: number;
-    isMacro: boolean;
-    editCmd(value: number): void;
-    deleteCmd(value: number): void;
+    isMacro?: boolean;
+    editCmd?(value: number): void;
+    deleteCmd?(value: number): void;
     upPosition(value: number): void;
     downPosition(value: number): void;
 }
@@ -18,7 +18,7 @@ interface Props {
 const CardCmd: FunctionComponent<Props> = (props) => {
 
     function copyCmd() {
-        Clipboard.setString(props.item.cmd);
+        Clipboard.setString(props.item.cmd ? props.item.cmd : '');
         ToastAndroid.show("Comando copiado!", ToastAndroid.SHORT);
     }
 
@@ -26,8 +26,7 @@ const CardCmd: FunctionComponent<Props> = (props) => {
         Alert.alert("¿Desas eliminar este cmd?", "Si eliminas el comando deberas crearlo uno de nuevo.",
             [
                 {
-                    text: "Cancelar",
-                    onPress: () => console.log("Cancel Pressed"),
+                    text: "Cancelar", 
                     style: "cancel"
                 },
                 { text: "Si, eliminar", onPress: () => props.deleteCmd(props.item.id) }

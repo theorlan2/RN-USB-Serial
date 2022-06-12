@@ -1,19 +1,18 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Picker } from '@react-native-picker/picker'
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, Button, Pressable, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
+import {  Button, Pressable, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import CardCmd from '../components/GroupsCmd/CardCmd';
 import ModalInfoFC from '../components/ModalInfoFC';
-import { CmdModelView, GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
+import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
+import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 
-//
-import { addEventListenerReadData, sendData } from '../infrastructure/utils/serialConnection'
+// 
 import { downPositionElement, upPositionElement } from '../infrastructure/utils/utilsGroups';
 import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
-import routesNames, { RootStackParamList } from '../routes/routesNames';
+import { RootStackParamList } from '../routes/routesNames';
 
 type GroupCmdScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -71,12 +70,14 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
     function editCmd(id: number) {
         setIsEdit(true);
         let r = cmds.find(item => item.id == id);
-        setTitle(r?.title);
-        setCmd(r?.cmd);
-        setTime(r?.timeOut);
-        setIdCmd(id);
-        setShowAddCmd(true);
-        setHaveChanges(true);
+        if(r && r.cmd) {
+            setTitle(r?.title);
+            setCmd(r?.cmd);
+            setTime(r?.timeOut);
+            setIdCmd(id);
+            setShowAddCmd(true);
+            setHaveChanges(true);
+        }
     }
 
     function saveEditCmd(id: number) {
@@ -113,11 +114,11 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
         getStoreData('macrosCmds').then(r => {
             if (r) {
                 let listGroups = r;
-                let result = listGroups.find(item => item.id == props.route.params.id);
+                let result = listGroups.find((item: GroupCmdModelView) => item.id == props.route.params.id);
                 if (result) {
                     setCmds(result.listCmds);
                 } else {
-                    props.navigation.navigate(routesNames.Home.name);
+                    props.navigation.navigate('Home');
                 }
             }
         }).then(() => {
@@ -162,7 +163,7 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
             <ScrollView style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
 
                 {cmds.map((item, indx) => <CardCmd key={indx} item={item} editCmd={editCmd} deleteCmd={deleteCmd} upPosition={_upPositionElement}
-                    downPosition={_downPositionElement} key={indx} />)}
+                    downPosition={_downPositionElement} position={indx} />)}
                 <View>
                     {/*  */}
                     {showAddCmd && <View style={{ marginVertical: 10 }} >

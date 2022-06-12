@@ -4,13 +4,13 @@ import React, { FunctionComponent, useEffect, useState } from 'react'
 import { Alert, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native'
 import { definitions } from 'react-native-serialport';
 import IonicIcon from 'react-native-vector-icons/Ionicons';
+import ButtonWithDescription from '../components/ButtonWithDescription';
+//
 import ModalAddGroupFC from '../components/ModalAddGroupFC';
 import ModalInfoFC from '../components/ModalInfoFC';
 import { StatusConnectionEnum, useSerialStatus } from '../infrastructure/contexts/serialStatusContext';
-
-//
 import { ConectionSerial, startUsbListener, validateIsRun } from '../infrastructure/utils/serialConnection'
-import routesNames, { RootStackParamList } from '../routes/routesNames';
+import { RootStackParamList } from '../routes/routesNames';
 
 type HomeScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -23,7 +23,6 @@ interface Props {
 
 const HomeScreen: FunctionComponent<Props> = (props) => {
 
-    const [configurationData, setConfigurationData] = useState({} as ConectionSerial)
     const [showModalLoading, setShowModalLoading] = useState(false);
     const [showModalAddGroup, setShowModalAddGroup] = useState(false);
     const [showModalAddMacro, setShowModalAddMacro] = useState(false);
@@ -155,7 +154,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
             storeData("groupsCmds", groupsCmdsData).then(() => {
                 setShowModalLoading(false);
                 setTimeout(() => {
-                    props.navigation.navigate(routesNames.GroupCmds.name, { id: id });
+                    props.navigation.navigate('GroupCmds', { id: id });
                 }, 500);
             });
         });
@@ -179,7 +178,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
             storeData("macrosCmds", groupsCmdsData).then(() => {
                 setShowModalLoading(false);
                 setTimeout(() => {
-                    props.navigation.navigate(routesNames.MacroCmds.name, { id: id });
+                    props.navigation.navigate('MacroCmds', { id: id });
                 }, 500);
             });
         });
@@ -189,61 +188,18 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
         <View style={{ flex: 1, flexDirection: 'column' }} >
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <ScrollView style={styles.mainCont} >
-                <Pressable onPress={() => props.navigation.navigate(routesNames.TempCmds.name)} style={styles.contBtn} >
-                    <View style={styles.contTitleBtn} >
-                        <IonicIcon name="list-outline" size={32} color="#444" />
-                        <Text style={styles.titleBtn} >Iniciar temporal</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row' }} >
-                        <Text style={{ fontWeight: '400', fontSize: 16, }} >Envia comandos de manera exporadica. (Lo que hagas aqui no se guardara)</Text>
-                    </View>
-                </Pressable>
-                {/* Btn 2 */}
-                <Pressable onPress={addGroup} style={styles.contBtn} >
-                    <View style={styles.contTitleBtn} >
-                        <IonicIcon name="add-outline" size={32} color="#444" />
-                        <Text style={styles.titleBtn} >Iniciar Nuevo Grupo</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row' }} >
-                        <Text style={{ fontWeight: '400', fontSize: 16, }} >Crea un grupo de comandos que podras guardar.</Text>
-                    </View>
-                </Pressable>
-                <Pressable onPress={() => props.navigation.navigate(routesNames.GroupCmdsList.name)} style={styles.contBtn} >
-                    <View style={styles.contTitleBtn} >
-                        <IonicIcon name="document-text-outline" size={32} color="#444" />
-                        <Text style={styles.titleBtn} >Cargar Grupo</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row' }} >
-                        <Text style={{ fontWeight: '400', fontSize: 16, }} >Carga un grupo de comandos guardados.</Text>
-                    </View>
-                </Pressable>
-                <Pressable onPress={addGMacro} style={styles.contBtn} >
-                    <View style={styles.contTitleBtn} >
-                        <IonicIcon name="add-outline" size={32} color="#444" />
-                        <Text style={styles.titleBtn} >Crear Macro</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row' }} >
-                        <Text style={{ fontWeight: '400', fontSize: 16, }} >Crear un grupo de comandos en un macro.</Text>
-                    </View>
-                </Pressable>
-                <Pressable onPress={() => props.navigation.navigate(routesNames.MacroCmdsList.name)} style={styles.contBtn} >
-                    <View style={styles.contTitleBtn} >
-                        <IonicIcon name="list-outline" size={32} color="#444" />
-                        <Text style={styles.titleBtn} >Cargar Macro</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row' }} >
-                        <Text style={{ fontWeight: '400', fontSize: 16, }} >Carga un grupo de comandos en un macro.</Text>
-                    </View>
-                </Pressable>
-                <Pressable onPress={() => props.navigation.navigate(routesNames.CalCRCCmds.name)} style={styles.contBtn} >
-                    <View style={styles.contTitleBtn} >
-                        <IonicIcon name="calculator-outline" size={32} color="#444" />
-                        <Text style={styles.titleBtn} >Calcular CRC</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row' }} >
-                        <Text style={{ fontWeight: '400', fontSize: 16, }} >Calcula CRC de los comandos.</Text>
-                    </View>
-                </Pressable>
+                <ButtonWithDescription onPress={() => props.navigation.navigate('TempCmds')} icon="list-outline" title="Iniciar temporal" description="Envia comandos de manera exporadica. (Lo que hagas aqui no se guardara)" />
+
+                <ButtonWithDescription onPress={addGroup} icon="add-outline" title="Crear Grupo" description="Crea un grupo de comandos que podras guardar." />
+
+                <ButtonWithDescription onPress={() => props.navigation.navigate('GroupCmdsList')} icon="document-text-outline" title="Cargar Grupo" description="Carga un grupo de comandos guardados." />
+
+                <ButtonWithDescription onPress={addGMacro} icon="add-outline" title="Crear Macro" description="Crear un grupo de comandos en un macro." />
+
+                <ButtonWithDescription onPress={() => props.navigation.navigate('MacroCmdsList')} icon="list-outline" title="Cargar Macro" description="Carga un grupo de comandos en un macro." />
+
+                <ButtonWithDescription onPress={() => props.navigation.navigate('CalCRCCmds')} icon="calculator-outline" title="Calcular CRC" description="Calcula CRC de los comandos." />
+
             </ScrollView>
             <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={"Cargando datos"} description={"Obteniendo datos de configuracion guardados..."} loading={true} />
             <ModalAddGroupFC title="Crear nuevo grupo" description="Escribe el nombre del grupo:" modalVisible={showModalAddGroup} closeModal={() => setShowModalAddGroup(false)} create={createGroup} />

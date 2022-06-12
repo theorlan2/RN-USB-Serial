@@ -1,18 +1,16 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Picker } from '@react-native-picker/picker'
-import React, { FunctionComponent, useEffect, useRef, useState } from 'react'
-import { Alert, Button, Pressable, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
-import { definitions, RNSerialport } from 'react-native-serialport';
+import React, { FunctionComponent, useRef, useState } from 'react'
+import { Button, Pressable, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import CardCmd from '../components/GroupsCmd/CardCmd';
-import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
 
 //
-import { ConectionSerial, sendData, startUsbListener } from '../infrastructure/utils/serialConnection'
+import { sendData } from '../infrastructure/utils/serialConnection'
+import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
 import { downPositionElement, runCmds, stopTimeout, upPositionElement } from '../infrastructure/utils/utilsGroups';
 
 
-let listCmdsY = [];
+let listCmdsY = [] as string[];
 const TempCmdScreen: FunctionComponent = () => {
 
     const [times] = useState([25, 50, 100, 150, 200, 300, 400, 500, 1000, 2000]);
@@ -21,12 +19,10 @@ const TempCmdScreen: FunctionComponent = () => {
     const [eventChange, setEventChange] = useState('');
     const [time, setTime] = useState(0)
     const [title, setTitle] = useState('');
-    const [idCmd, setIdCmd] = useState(0)
     const [cmd, setCmd] = useState('')
     const [disabledAdd, setDisabledAdd] = useState(false)
     const [showAddCmd, setShowAddCmd] = useState(false)
     const [logCMD, setLogCMD] = useState([] as any);
-    const [isStart, setIsStart] = useState(false);
     const scrollViewRef = useRef({} as ScrollView);
     const scrollViewRef2 = useRef({} as ScrollView);
 
@@ -53,37 +49,32 @@ const TempCmdScreen: FunctionComponent = () => {
 
     function editCmd(id: number) {
         let r = cmds.find(item => item.id == id);
-        setTitle(r?.title);
-        setCmd(r?.cmd);
-        setTime(r?.timeOut);
-        setIdCmd(id);
-        setShowAddCmd(true);
+        if (r && r?.cmd) {
+            setTitle(r?.title);
+            setCmd(r?.cmd);
+            setTime(r?.timeOut);
+            setShowAddCmd(true);
+        }
     }
 
     function deleteCmd(id: number) {
         setCmds(cmds.filter(item => item.id != id));
     }
 
-    function _stopCmds() {
-        let lastIndex = 5;
-        stopTimeout(lastIndex, cmds);
-        setIsStart(false);
-    }
 
     function _runCmds() {
         let count = 0;
-        setIsStart(true);
         runCmds(cmds, (cmd: string) => {
             if (listCmdsY[count]) {
                 scrollViewRef2.current.scrollTo({
                     animated: true,
-                    y: listCmdsY[count]
+                    y: +listCmdsY[count]
                 });
             }
             stopTimeout(count);
             count++;
             sendCmd(cmd);
-            setLogCMD((prevState) => ([
+            setLogCMD((prevState: { isSend: boolean, cmd: CmdModelView }[]) => ([
                 ...prevState,
                 { isSend: true, cmd: cmd }
             ] as any));
@@ -113,7 +104,7 @@ const TempCmdScreen: FunctionComponent = () => {
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <ScrollView style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
 
-                {cmds.map((item, indx) => <CardCmd isMacro={item.isMacro ? true : false} key={indx} item={item} editCmd={editCmd} deleteCmd={deleteCmd} key={indx} upPosition={_upPositionElement} downPosition={_downPositionElement} />)}
+                {cmds.map((item, indx) => <CardCmd isMacro={item.isMacro ? true : false} key={indx} item={item} position={indx} editCmd={editCmd} deleteCmd={deleteCmd} upPosition={_upPositionElement} downPosition={_downPositionElement} />)}
 
                 <View>
                     {/*  */}
@@ -173,8 +164,8 @@ const TempCmdScreen: FunctionComponent = () => {
                 </View>}
             </ScrollView>
             <ScrollView style={{ flex: 1, width: '100%', backgroundColor: '#CFD8DC' }} contentContainerStyle={{}} >
-                <Text style={{ margin: 10 }} >Log:</Text>
-                {logCMD.map((item, indx) => <Text style={{ margin: 10 }} key={indx + item.cmd} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? 'Enviado:' : 'Recibido'}</Text>{item.cmd}</Text>)}
+                <Text style={{ margin: 10 }} >Log de comandos:</Text>
+                {logCMD.map((item: { isSend: boolean, cmd: CmdModelView }, indx: number) => <Text style={{ margin: 10 }} key={indx + 'log-cmd'} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? 'Enviado:' : 'Recibido'}</Text>{item.cmd}</Text>)}
             </ScrollView>
             <View style={{ position: 'absolute', width: 60, height: 60, bottom: 16, right: 16, }} >
                 <Pressable onPress={_runCmds} style={{ backgroundColor: '#00BBD3', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end' }} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>

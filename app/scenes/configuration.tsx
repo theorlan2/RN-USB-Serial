@@ -1,7 +1,8 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Picker } from '@react-native-picker/picker';
 import React, { FunctionComponent, useEffect, useState } from 'react'
 import { Alert, Button, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
+import { Picker } from '@react-native-picker/picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+//
 import ModalInfoFC from '../components/ModalInfoFC';
 import { DataBitsEnum, ParitiesEnum, StopBitsEnum } from '../infrastructure/enums/configurationDataEnum';
 
@@ -85,8 +86,7 @@ const ConfigurationScreen: FunctionComponent = () => {
 
     const [parity, setParity] = useState(ParitiesEnum.PARITY_NONE);
     const [dataBits, setDataBits] = useState(DataBitsEnum.DATA_BITS_5)
-    const [stopsBits, setStopsBits] = useState(StopBitsEnum.STOP_BITS_1)
-    const [time, setTime] = useState(0)
+    const [stopsBits, setStopsBits] = useState(StopBitsEnum.STOP_BITS_1) 
     const [breakDuration, setBreakDuration] = useState('')
     const [baudRate, setBaudRate] = useState('9600')
     const [isSave, setIsSave] = useState(true);
