@@ -9,6 +9,7 @@ import ButtonWithDescription from '../components/ButtonWithDescription';
 import ModalAddGroupFC from '../components/ModalAddGroupFC';
 import ModalInfoFC from '../components/ModalInfoFC';
 import { StatusConnectionEnum, useSerialStatus } from '../infrastructure/contexts/serialStatusContext';
+import { useTheme } from '../infrastructure/contexts/themeContexts';
 import { ConectionSerial, startUsbListener, validateIsRun } from '../infrastructure/utils/serialConnection'
 import { RootStackParamList } from '../routes/routesNames';
 
@@ -27,6 +28,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
     const [showModalAddGroup, setShowModalAddGroup] = useState(false);
     const [showModalAddMacro, setShowModalAddMacro] = useState(false);
     const { setConnectStatus } = useSerialStatus();
+    const { colors } = useTheme();
 
     useEffect(() => {
         validateIsRun().then((r) => {
@@ -117,15 +119,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
         mainCont: {
             flex: 1, flexDirection: 'column', width: '96%', alignSelf: 'center'
         },
-        contBtn: {
-            marginVertical: 10, backgroundColor: '#fff', elevation: 2, padding: 10,
-        },
-        contTitleBtn: {
-            flexDirection: 'row', alignItems: 'center', marginVertical: 5
-        },
-        titleBtn: {
-            fontWeight: 'bold', fontSize: 18, marginLeft: 10
-        }
+         
     })
 
     function addGroup() {
@@ -186,19 +180,19 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
 
     return (
         <View style={{ flex: 1, flexDirection: 'column' }} >
-            <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
+            <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
             <ScrollView style={styles.mainCont} >
-                <ButtonWithDescription onPress={() => props.navigation.navigate('TempCmds')} icon="list-outline" title="Iniciar temporal" description="Envia comandos de manera exporadica. (Lo que hagas aqui no se guardara)" />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('TempCmds')} icon="list-outline" title="Iniciar temporal" description="Envia comandos de manera exporadica. (Lo que hagas aqui no se guardara)" />
 
-                <ButtonWithDescription onPress={addGroup} icon="add-outline" title="Crear Grupo" description="Crea un grupo de comandos que podras guardar." />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={addGroup} icon="add-outline" title="Crear Grupo" description="Crea un grupo de comandos que podras guardar." />
 
-                <ButtonWithDescription onPress={() => props.navigation.navigate('GroupCmdsList')} icon="document-text-outline" title="Cargar Grupo" description="Carga un grupo de comandos guardados." />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('GroupCmdsList')} icon="document-text-outline" title="Cargar Grupo" description="Carga un grupo de comandos guardados." />
 
-                <ButtonWithDescription onPress={addGMacro} icon="add-outline" title="Crear Macro" description="Crear un grupo de comandos en un macro." />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={addGMacro} icon="add-outline" title="Crear Macro" description="Crear un grupo de comandos en un macro." />
 
-                <ButtonWithDescription onPress={() => props.navigation.navigate('MacroCmdsList')} icon="list-outline" title="Cargar Macro" description="Carga un grupo de comandos en un macro." />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('MacroCmdsList')} icon="list-outline" title="Cargar Macro" description="Carga un grupo de comandos en un macro." />
 
-                <ButtonWithDescription onPress={() => props.navigation.navigate('CalCRCCmds')} icon="calculator-outline" title="Calcular CRC" description="Calcula CRC de los comandos." />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('CalCRCCmds')} icon="calculator-outline" title="Calcular CRC" description="Calcula CRC de los comandos." />
 
             </ScrollView>
             <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={"Cargando datos"} description={"Obteniendo datos de configuracion guardados..."} loading={true} />

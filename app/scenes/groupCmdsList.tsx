@@ -7,6 +7,7 @@ import ModalInfoFC from '../components/ModalInfoFC';
 import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
 import { RootStackParamList } from '../routes/routesNames';
+import { useTheme } from '../infrastructure/contexts/themeContexts';
 //
 type GroupCmdListScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -21,6 +22,7 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
 
     const [groupsCmdsData, setGroupsCmdsData] = useState([] as GroupCmdModelView[]);
     const [showModalLoading, setShowModalLoading] = useState(false);
+    const { colors } = useTheme();
 
     useEffect(() => {
         getDataFromStorage();
@@ -45,8 +47,6 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
     }
 
     function alertDelete(id: number) {
-
-
         Alert.alert("¿Desas eliminar este grupo?", "Si eliminas el grupo deberas crear uno de nuevo.",
             [
                 {
@@ -83,12 +83,12 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
 
     return (
         <View style={{ flex: 1, }} >
-            <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
+            <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
             <ScrollView style={styles.mainCont}   >
                 {groupsCmdsData.length < 1 && <View style={{ marginVertical: 10, alignSelf: 'center', }} >
-                    <Text style={{ textAlign: 'center' }} >No hay Grupos creados</Text>
+                    <Text style={{ textAlign: 'center', color:colors.text }} >No hay Grupos creados</Text>
                 </View>}
-                {groupsCmdsData.map((item, key) => <CardGroup key={item.id + key} item={item} openGroup={openGroup} deleteGroup={alertDelete} />)}
+                {groupsCmdsData.map((item, key) => <CardGroup colorText={colors.text} bgColor={colors.background_3} btnColor={colors.background_1} key={item.id + key} item={item} openGroup={openGroup} deleteGroup={alertDelete} />)}
             </ScrollView>
             <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={"Cargando datos"} description={"Obteniendo datos de grupos guardados..."} loading={true} />
         </View>
