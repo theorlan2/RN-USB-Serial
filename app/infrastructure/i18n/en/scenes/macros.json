@@ -1,0 +1,30 @@
+{
+    "addMacros": {
+        "titles": {
+            "add": "Add Command"
+        },
+        "buttons": {},
+        "inputs": {
+            "name": "Name",
+            "addHexCommand": "Command in Hexadecimal",
+            "timeOut": "Delay time"
+        },
+        "loading Dialog": {
+            "title": "Saving macro data...",
+            "description": "Saving macro data in memory..."
+        }
+    },
+    "loadMacros": {
+        "titles": {
+            "empty": "No Macros created"
+        },
+        "loading": {
+            "title": "Loading data",
+            "description": "Getting saved macro data..."
+        },
+        "delete": {
+            "title": "Do you want to delete this macro?",
+            "description": "If you delete the macro you will have to create a new one.",
+        }
+    }
+}

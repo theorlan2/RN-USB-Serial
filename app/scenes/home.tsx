@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native'
+import { useTranslation } from 'react-i18next';
+import { Alert, ScrollView, StatusBar, StyleSheet, View } from 'react-native'
 import { definitions } from 'react-native-serialport';
-import IonicIcon from 'react-native-vector-icons/Ionicons';
 import ButtonWithDescription from '../components/ButtonWithDescription';
 //
 import ModalAddGroupFC from '../components/ModalAddGroupFC';
@@ -24,11 +24,13 @@ interface Props {
 
 const HomeScreen: FunctionComponent<Props> = (props) => {
 
+    const { colors } = useTheme();
+    const { t } = useTranslation(['home']);
+    //
     const [showModalLoading, setShowModalLoading] = useState(false);
     const [showModalAddGroup, setShowModalAddGroup] = useState(false);
     const [showModalAddMacro, setShowModalAddMacro] = useState(false);
     const { setConnectStatus } = useSerialStatus();
-    const { colors } = useTheme();
 
     useEffect(() => {
         validateIsRun().then((r) => {
@@ -119,7 +121,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
         mainCont: {
             flex: 1, flexDirection: 'column', width: '96%', alignSelf: 'center'
         },
-         
+
     })
 
     function addGroup() {
@@ -182,22 +184,23 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
         <View style={{ flex: 1, flexDirection: 'column' }} >
             <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
             <ScrollView style={styles.mainCont} >
-                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('TempCmds')} icon="list-outline" title="Iniciar temporal" description="Envia comandos de manera exporadica. (Lo que hagas aqui no se guardara)" />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('TempCmds')} icon="list-outline" title={t('home:buttons.sendTemps.title')} description={t('home:buttons.sendTemps.description')} />
 
-                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={addGroup} icon="add-outline" title="Crear Grupo" description="Crea un grupo de comandos que podras guardar." />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={addGroup} icon="add-outline" title={t('home:buttons.createGroup.title')} description={t('home:buttons.createGroup.description')} />
 
-                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('GroupCmdsList')} icon="document-text-outline" title="Cargar Grupo" description="Carga un grupo de comandos guardados." />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('GroupCmdsList')} icon="document-text-outline" title={t('home:buttons.loadGroup.title')} description={t('home:buttons.loadGroup.description')} />
 
-                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={addGMacro} icon="add-outline" title="Crear Macro" description="Crear un grupo de comandos en un macro." />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={addGMacro} icon="add-outline" title={t('home:buttons.createMacro.title')} description={t('home:buttons.createMacro.description')} />
 
-                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('MacroCmdsList')} icon="list-outline" title="Cargar Macro" description="Carga un grupo de comandos en un macro." />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('MacroCmdsList')} icon="list-outline" title={t('home:buttons.loadMacro.title')} description={t('home:buttons.loadMacro.description')} />
 
-                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('CalCRCCmds')} icon="calculator-outline" title="Calcular CRC" description="Calcula CRC de los comandos." />
+                <ButtonWithDescription colorText={colors.text} bgColor={colors.background_3} onPress={() => props.navigation.navigate('CalCRCCmds')} icon="calculator-outline" title={t('home:buttons.calculateCrc.title')} description={t('home:buttons.calculateCrc.description')} />
 
             </ScrollView>
+
             <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={"Cargando datos"} description={"Obteniendo datos de configuracion guardados..."} loading={true} />
-            <ModalAddGroupFC title="Crear nuevo grupo" description="Escribe el nombre del grupo:" modalVisible={showModalAddGroup} closeModal={() => setShowModalAddGroup(false)} create={createGroup} />
-            <ModalAddGroupFC title="Crear nuevo macro" description="Escribe el nombre del macro:" modalVisible={showModalAddMacro} closeModal={() => setShowModalAddMacro(false)} create={createMacro} />
+            <ModalAddGroupFC title={t('home:dialogs.createGroup.title')} description={t('home:dialogs.createGroup.description')} modalVisible={showModalAddGroup} closeModal={() => setShowModalAddGroup(false)} create={createGroup} />
+            <ModalAddGroupFC title={t('home:dialogs.createMacro.title')} description={t('home:dialogs.createMacro.description')} modalVisible={showModalAddMacro} closeModal={() => setShowModalAddMacro(false)} create={createMacro} />
         </View>
     );
 }

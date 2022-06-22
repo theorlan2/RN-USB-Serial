@@ -1,0 +1,38 @@
+{
+    "buttons":{
+        "sendTemps":{
+            "title":"Envio Tempral",
+            "description":"Envia comandos de manera temporal sin guardar."
+        },
+        "createGroup":{
+            "title":"Crear Grupo",
+            "description":"Crea un grupo de comandos que podras utilizar luego para enviar en orden."
+        },
+        "createMacro":{
+            "title":"Crear Macro",
+            "description":"Crea un macro de comandos."
+        },
+        "loadGroup":{
+            "title":"Cargar Group",
+            "description":"Carga un grupo de comandos guardados."
+        },
+        "loadMacro":{
+            "title":"Cagar Macro",
+            "description":"Carga un grupo de comandos en un macro."
+        },
+        "calculateCrc":{
+            "title":"Calcular CRC",
+            "description":"Calcula CRC de tus comandos."
+        }
+    },
+    "dialogs":{
+        "createGroup": {
+            "title":"Crear nuevo grupo",
+            "description":"Escribe el nombre del grupo:"
+        },
+        "createMacro": {
+            "title":"Crear nuevo macro",
+            "description":"Escribe el nombre del macro:s"
+        }
+    }
+}

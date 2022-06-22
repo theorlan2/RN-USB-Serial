@@ -44,8 +44,7 @@ export default function App() {
                         fontSize: 16
                     },
                     headerTintColor: 'white',
-                }}
-                
+                }} 
                 >
                 <Stack.Screen name={routesNames.Home.name} options={{
                     title: t('titleScenes:titles.home'),

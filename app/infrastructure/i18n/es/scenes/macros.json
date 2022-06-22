@@ -1,0 +1,32 @@
+{
+    "addMacros":{
+        "titles":{
+            "add": "Agregar Comando"
+        },
+          "buttons":{
+          },
+          "inputs":{
+              "name":"Nombre",
+              "addHexCommand":"Comando en Hexadecimal",
+              "timeOut":"Tiempo de retraso"
+          },
+          "loadingDialog":{
+              "title":"Guardando datos del macro...",
+              "description":"Guardando los datos del macro en memoria..."
+          }
+      },
+    "loadMacros":{
+        "titles":{
+            "empty":"No hay Macros creados",
+            
+        },
+        "loading":{
+            "title":"Cargando datos",
+            "description":"Obteniendo datos de macros guardados..."
+        },
+        "delete":{
+            "title":"¿Desas eliminar este macro?",
+            "description":"Si eliminas el macro deberas crear uno de nuevo.", 
+        }
+    }
+}

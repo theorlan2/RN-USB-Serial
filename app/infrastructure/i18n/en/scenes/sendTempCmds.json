@@ -1,0 +1,12 @@
+{
+    "inputs":{
+        "name":"Name",
+        "cmd":"Command in Hexadecimal",
+        "timeOut":"Delay time"
+    },
+    "titles":{
+        "addCmd":"Add Command",
+        "empty":"No Commands created",
+         "log":"Command Log"
+    }
+}

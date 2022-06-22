@@ -1,12 +1,31 @@
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, Button, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
+import { Alert, Button, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 //
 import ModalInfoFC from '../components/ModalInfoFC';
 import { DataBitsEnum, ParitiesEnum, StopBitsEnum } from '../infrastructure/enums/configurationDataEnum';
+import { useTheme } from '../infrastructure/contexts/themeContexts';
+import { useTranslation } from 'react-i18next';
 
-const ConfigurationScreen: FunctionComponent = () => {
+
+type StateProps = {}
+
+type Props = StateProps;
+
+
+const ConfigurationScreen: FunctionComponent<Props> = (props) => {
+
+    const { colors } = useTheme();
+    const { t } = useTranslation(['defaultData']);
+    const [parity, setParity] = useState(ParitiesEnum.PARITY_NONE);
+    const [dataBits, setDataBits] = useState(DataBitsEnum.DATA_BITS_5)
+    const [stopsBits, setStopsBits] = useState(StopBitsEnum.STOP_BITS_1)
+    const [breakDuration, setBreakDuration] = useState('')
+    const [baudRate, setBaudRate] = useState('9600')
+    const [isSave, setIsSave] = useState(true);
+    const [showModalLoading, setShowModalLoading] = useState(true);
 
     const Options = {
         parity: [
@@ -84,19 +103,19 @@ const ConfigurationScreen: FunctionComponent = () => {
         return result;
     }
 
-    const [parity, setParity] = useState(ParitiesEnum.PARITY_NONE);
-    const [dataBits, setDataBits] = useState(DataBitsEnum.DATA_BITS_5)
-    const [stopsBits, setStopsBits] = useState(StopBitsEnum.STOP_BITS_1) 
-    const [breakDuration, setBreakDuration] = useState('')
-    const [baudRate, setBaudRate] = useState('9600')
-    const [isSave, setIsSave] = useState(true);
-    const [showModalLoading, setShowModalLoading] = useState(true);
+
+    const styles = StyleSheet.create({
+        iconStyle: { fontSize: 45, color: colors.text },
+        btn: { paddingVertical: 16, backgroundColor: colors.primary, paddingHorizontal: 20, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+        btnText: { color: 'white', fontSize: 16 },
+    });
+
 
     return (
         <ScrollView style={{ maxWidth: '96%', alignSelf: 'center', width: '100%' }} >
             <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
             <View style={{ marginVertical: 10 }} >
-                <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Baud rate:</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5, color: colors.text }} >Baud rate:</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                     <TextInput
                         placeholder="Baud rate"
@@ -109,7 +128,7 @@ const ConfigurationScreen: FunctionComponent = () => {
             </View>
 
             <View style={{ marginVertical: 10 }} >
-                <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Parity:</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5, color: colors.text }} >Parity:</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                     <Picker
                         selectedValue={parity}
@@ -120,7 +139,7 @@ const ConfigurationScreen: FunctionComponent = () => {
                 </View>
             </View>
             <View style={{ marginVertical: 10 }} >
-                <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Data bits:</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5, color: colors.text }} >Data bits:</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                     <Picker
                         selectedValue={dataBits}
@@ -131,7 +150,7 @@ const ConfigurationScreen: FunctionComponent = () => {
                 </View>
             </View>
             <View style={{ marginVertical: 10 }} >
-                <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Stop bits:</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5, color: colors.text }} >Stop bits:</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                     <Picker
                         selectedValue={stopsBits}
@@ -141,7 +160,36 @@ const ConfigurationScreen: FunctionComponent = () => {
                     </Picker>
                 </View>
             </View>
-            <Button title="Guardar" onPress={saveData} color="#00BBD3"   ></Button>
+            <View
+                style={{
+                    alignSelf: 'center',
+                    marginBottom: 10,
+                    flexDirection: 'row',
+                }}>
+                <View style={{ flex: 1, margin: 5 }}>
+                    <Pressable style={{ ...styles.btn, backgroundColor: 'transparent' }}
+                        onPress={() => { props.navigation.goBack() }}>
+                        <Icon
+                            name="arrow-left"
+                            color={colors.text}
+                            style={{ fontSize: 20, marginRight: 5 }}
+                        />
+                        <Text style={{ ...styles.btnText, color: colors.text, textAlign: 'center', fontWeight: 'bold' }}>{t('defaultData:buttons.back')}</Text>
+                    </Pressable>
+
+                </View>
+                <View style={{ flex: 1, margin: 5 }}>
+                    <Pressable style={{ ...styles.btn, backgroundColor: colors.secondary }}
+                        onPress={saveData}>
+                        <Icon
+                            name="content-save"
+                            color="white"
+                            style={{ fontSize: 20, marginRight: 5 }}
+                        />
+                        <Text style={styles.btnText}>{t('defaultData:buttons.save')}</Text>
+                    </Pressable>
+                </View>
+            </View>
             <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={isSave ? "Guardando datos" : "Cargando datos"} description={isSave ? "Guardando datos de configuracion..." : "Obteniendo datos de configuracion guardados..."} loading={true} />
         </ScrollView>
     );

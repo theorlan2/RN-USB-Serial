@@ -8,13 +8,16 @@ import CardCmd from '../components/GroupsCmd/CardCmd';
 import { sendData } from '../infrastructure/utils/serialConnection'
 import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
 import { downPositionElement, runCmds, stopTimeout, upPositionElement } from '../infrastructure/utils/utilsGroups';
+import { useTheme } from '../infrastructure/contexts/themeContexts';
+import { useTranslation } from 'react-i18next';
 
 
 let listCmdsY = [] as string[];
 const TempCmdScreen: FunctionComponent = () => {
+    const { colors } = useTheme();
+    const { t } = useTranslation(['sendTempCmds', 'defaultData']);
 
     const [times] = useState([25, 50, 100, 150, 200, 300, 400, 500, 1000, 2000]);
-
     const [cmds, setCmds] = useState([] as CmdModelView[]);
     const [eventChange, setEventChange] = useState('');
     const [time, setTime] = useState(0)
@@ -64,6 +67,7 @@ const TempCmdScreen: FunctionComponent = () => {
 
     function _runCmds() {
         let count = 0;
+        setDisabledAdd(true);
         runCmds(cmds, (cmd: string) => {
             if (listCmdsY[count]) {
                 scrollViewRef2.current.scrollTo({
@@ -79,6 +83,9 @@ const TempCmdScreen: FunctionComponent = () => {
                 { isSend: true, cmd: cmd }
             ] as any));
             scrollViewRef.current.scrollToEnd({ animated: true });
+            if (count == cmds.length) {
+                setDisabledAdd(false);
+            }
         })
     }
 
@@ -106,32 +113,31 @@ const TempCmdScreen: FunctionComponent = () => {
 
                 {cmds.map((item, indx) => <CardCmd isMacro={item.isMacro ? true : false} key={indx} item={item} position={indx} editCmd={editCmd} deleteCmd={deleteCmd} upPosition={_upPositionElement} downPosition={_downPositionElement} />)}
 
-                <View>
-                    {/*  */}
+                <>
                     {showAddCmd && <View style={{ marginVertical: 10 }} >
-                        <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center' }} >AGREGAR COMANDO</Text>
+                        <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center' }} >{t('sendTempCmds:titles.addCmd')}</Text>
                         <View style={{ marginVertical: 10, paddingBottom: 15, }} >
-                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Nombre:</Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >{t('sendTempCmds:inputs.name')}:</Text>
                             <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                                 <TextInput
-                                    placeholder="Nombre"
+                                    placeholder={t('sendTempCmds:inputs.name')}
                                     value={title}
                                     onChangeText={value => setTitle(value)}
                                 />
                             </View>
                         </View>
                         <View style={{ marginVertical: 10, paddingBottom: 15, }} >
-                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Comando en Hexadecimal:</Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >{t('sendTempCmds:inputs.cmd')}:</Text>
                             <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                                 <TextInput
-                                    placeholder="Comando en Hexadecimal"
+                                    placeholder={t('sendTempCmds:inputs.cmd')}
                                     value={cmd}
                                     onChangeText={value => setCmd(value)}
                                 />
                             </View>
                         </View>
                         <View style={{ marginVertical: 10 }} >
-                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Tiempo de retraso:</Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >{t('sendTempCmds:inputs.timeOut')}:</Text>
                             <View style={{ backgroundColor: '#fff', elevation: 2 }} >
                                 <Picker
                                     selectedValue={time}
@@ -143,32 +149,32 @@ const TempCmdScreen: FunctionComponent = () => {
                         </View>
                         <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
                             <View style={{ flex: 1, marginRight: 5 }} >
-                                <Button title="CANCELAR" onPress={() => setShowAddCmd(false)} color="red" disabled={disabledAdd} ></Button>
+                                <Button title={t('defaultData:buttons.cancel')} onPress={() => setShowAddCmd(false)} color="red" disabled={disabledAdd} ></Button>
                             </View>
                             <View style={{ flex: 1, marginLeft: 5 }} >
-                                <Button title="Agregar Comando" onPress={addCmd} color="#00BBD3" disabled={disabledAdd} ></Button>
+                                <Button title={t('defaultData:buttons.addCmd')} onPress={addCmd} color={colors.primary} disabled={disabledAdd} ></Button>
                             </View>
                         </View>
                     </View>}
                     {cmds.length < 1 && <View style={{ marginVertical: 10 }} >
-                        <Text style={{ textAlign: 'center' }} >No hay Comandos creados</Text>
+                        <Text style={{ textAlign: 'center', color: colors.text }} >{t('sendTempCmds:titles.empty')}</Text>
                     </View>}
-                    {/*  */}
-                </View>
+
+                </>
 
                 {!showAddCmd && <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
 
                     <View style={{ flex: 1, marginLeft: 5 }} >
-                        <Button title="Agregar Comando" onPress={() => showAddCmd ? addCmd() : setShowAddCmd(true)} color="#00BBD3" disabled={disabledAdd} ></Button>
+                        <Button title={t('sendTempCmds:titles.addCmd')} onPress={() => showAddCmd ? addCmd() : setShowAddCmd(true)} color="#00BBD3" disabled={disabledAdd} ></Button>
                     </View>
                 </View>}
             </ScrollView>
-            <ScrollView style={{ flex: 1, width: '100%', backgroundColor: '#CFD8DC' }} contentContainerStyle={{}} >
-                <Text style={{ margin: 10 }} >Log de comandos:</Text>
-                {logCMD.map((item: { isSend: boolean, cmd: CmdModelView }, indx: number) => <Text style={{ margin: 10 }} key={indx + 'log-cmd'} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? 'Enviado:' : 'Recibido'}</Text>{item.cmd}</Text>)}
+            <ScrollView style={{ flex: 1, width: '100%', backgroundColor: colors.background_3 }} contentContainerStyle={{}} >
+                <Text style={{ margin: 10, color: colors.text }} >{t('sendTempCmds:titles.log')}:</Text>
+                {logCMD.map((item: { isSend: boolean, cmd: CmdModelView }, indx: number) => <Text style={{ margin: 10 }} key={indx + 'log-cmd'} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? t('defaultData:description.send') : t('defaultData:description.received')}</Text>{item.cmd}</Text>)}
             </ScrollView>
             <View style={{ position: 'absolute', width: 60, height: 60, bottom: 16, right: 16, }} >
-                <Pressable onPress={_runCmds} style={{ backgroundColor: '#00BBD3', justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end' }} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>
+                <Pressable onPress={_runCmds} style={{ backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end' }} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>
             </View>
         </View>
     );

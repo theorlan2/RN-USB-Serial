@@ -2,10 +2,12 @@ import { Picker } from '@react-native-picker/picker'
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import {  Button, Pressable, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
+import { useTranslation } from 'react-i18next';
+import { Button, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import CardCmd from '../components/GroupsCmd/CardCmd';
 import ModalInfoFC from '../components/ModalInfoFC';
+import { useTheme } from '../infrastructure/contexts/themeContexts';
 import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
 import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 
@@ -26,6 +28,8 @@ interface Props {
 
 const MacroCmdScreen: FunctionComponent<Props> = (props) => {
 
+    const { t } = useTranslation(['macros']);
+    const { colors } = useTheme();
     const [times] = useState([25, 50, 100, 150, 200, 300, 400, 500, 1000, 2000]);
     const [cmds, setCmds] = useState([] as CmdModelView[]);
     const [time, setTime] = useState(25)
@@ -48,6 +52,7 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
     }, [])
 
     function addCmd() {
+        setDisabledAdd(true);
         setCmds((prevState) => ([
             ...prevState,
             {
@@ -62,6 +67,7 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
             setTitle('');
             setCmd('');
             setTime(25);
+            setDisabledAdd(false);
         }, 100);
         setHaveChanges(true);
     }
@@ -70,7 +76,7 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
     function editCmd(id: number) {
         setIsEdit(true);
         let r = cmds.find(item => item.id == id);
-        if(r && r.cmd) {
+        if (r && r.cmd) {
             setTitle(r?.title);
             setCmd(r?.cmd);
             setTime(r?.timeOut);
@@ -157,20 +163,56 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
         setHaveChanges(true);
     }
 
+    const styles = StyleSheet.create({
+        mainCont: {
+            flex: 1, flexDirection: 'column'
+        },
+        scrollCont: {
+            flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%'
+        },
+        formCmd: {
+            marginVertical: 10
+        },
+        titleForm: {
+            fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: colors.text
+        },
+        inputCont: {
+            marginVertical: 10, paddingBottom: 15,
+        },
+        titleInput: {
+            fontWeight: 'bold', fontSize: 12, marginBottom: 5, color: colors.text
+        },
+        inputBackCont: {
+            backgroundColor: '#fff', elevation: 2
+        },
+        buttonsCont: {
+            marginVertical: 10, flex: 1, flexDirection: 'row'
+        },
+        buttonContLeft: {
+            flex: 1, marginRight: 5
+        },
+        buttonContRight: {
+            flex: 1, marginLeft: 5
+        },
+        buttonAddCont: {
+            marginVertical: 10, flex: 1, flexDirection: 'row'
+        }
+    })
+
     return (
-        <View style={{ flex: 1, flexDirection: 'column' }} >
-            <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
-            <ScrollView style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
+        <View style={styles.mainCont} >
+            <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
+            <ScrollView style={styles.scrollCont}   >
 
                 {cmds.map((item, indx) => <CardCmd key={indx} item={item} editCmd={editCmd} deleteCmd={deleteCmd} upPosition={_upPositionElement}
                     downPosition={_downPositionElement} position={indx} />)}
                 <View>
                     {/*  */}
-                    {showAddCmd && <View style={{ marginVertical: 10 }} >
-                        <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center' }} >AGREGAR COMANDO</Text>
-                        <View style={{ marginVertical: 10, paddingBottom: 15, }} >
-                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Nombre:</Text>
-                            <View style={{ backgroundColor: '#fff', elevation: 2 }} >
+                    {showAddCmd && <View style={styles.formCmd} >
+                        <Text style={styles.titleForm} >{t('macros:addMacros.titles.add')}</Text>
+                        <View style={styles.inputCont} >
+                            <Text style={styles.titleInput} >{t('macros:addMacros.inputs.name')}</Text>
+                            <View style={styles.inputBackCont} >
                                 <TextInput
                                     placeholder="Nombre"
                                     value={title}
@@ -178,20 +220,20 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
                                 />
                             </View>
                         </View>
-                        <View style={{ marginVertical: 10, paddingBottom: 15, }} >
-                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Comando en Hexadecimal:</Text>
-                            <View style={{ backgroundColor: '#fff', elevation: 2 }} >
+                        <View style={styles.inputCont} >
+                            <Text style={styles.titleInput} >{t('macros:addMacros.inputs.addHexCommand')}</Text>
+                            <View style={styles.inputBackCont} >
                                 <TextInput
-                                    placeholder="Comando en Hexadecimal"
+                                    placeholder={t('macros:addMacros.inputs.addHexCommand')}
                                     value={cmd}
                                     onChangeText={value => setCmd(value)}
                                     autoCapitalize='characters'
                                 />
                             </View>
                         </View>
-                        <View style={{ marginVertical: 10 }} >
-                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >Tiempo de retraso:</Text>
-                            <View style={{ backgroundColor: '#fff', elevation: 2 }} >
+                        <View style={styles.inputCont} >
+                            <Text style={styles.titleInput} >{t('macros:addMacros.inputs.timeOut')}</Text>
+                            <View style={styles.inputBackCont} >
                                 <Picker
                                     selectedValue={time}
                                     style={{ height: 50, width: '100%' }}
@@ -200,24 +242,24 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
                                 </Picker>
                             </View>
                         </View>
-                        <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
-                            <View style={{ flex: 1, marginRight: 5 }} >
-                                <Button title="CANCELAR" onPress={() => setShowAddCmd(false)} color="red" disabled={disabledAdd} ></Button>
+                        <View style={styles.buttonsCont} >
+                            <View style={styles.buttonContLeft} >
+                                <Button title={t('defaultData:buttons.cancel')} onPress={() => setShowAddCmd(false)} color="red" disabled={disabledAdd} ></Button>
                             </View>
-                            <View style={{ flex: 1, marginLeft: 5 }} >
-                                <Button title="Guardar" onPress={() => isEdit ? saveEditCmd(idCmd) : addCmd()} color="#00BBD3" disabled={disabledAdd} ></Button>
+                            <View style={styles.buttonContRight} >
+                                <Button title={t('defaultData:buttons.save')} onPress={() => isEdit ? saveEditCmd(idCmd) : addCmd()} color="#00BBD3" disabled={disabledAdd} ></Button>
                             </View>
                         </View>
                     </View>}
                     {cmds.length < 1 && !showAddCmd && <View style={{ marginVertical: 10 }} >
-                        <Text style={{ textAlign: 'center' }} >No hay Comandos creados</Text>
+                        <Text style={{ textAlign: 'center', color: colors.text }} >{t('macros:loadMacros.titles.empty')}</Text>
                     </View>}
                     {/*  */}
                 </View>
 
-                {!showAddCmd && <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
+                {!showAddCmd && <View style={styles.buttonAddCont} >
                     <View style={{ flex: 1, marginLeft: 5 }} >
-                        <Button title="Agregar Comando" onPress={() => showAddCmd ? addCmd() : setShowAddCmd(true)} color="#00BBD3" disabled={disabledAdd} ></Button>
+                        <Button title={t('macros:addMacros.titles.add')} onPress={() => showAddCmd ? addCmd() : setShowAddCmd(true)} color="#00BBD3" disabled={disabledAdd} ></Button>
                     </View>
                 </View>}
             </ScrollView>

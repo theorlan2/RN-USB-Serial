@@ -8,7 +8,7 @@ export const darkColors = {
     background_2: '#272727',
     background_3: '#323232',
     border: '#E3E6EA',
-    primary: '#DC443C',
+    primary: '#00BBD3',
     secondary: '#424242',
     text: '#FFFFFF',
     textSecondary: '#444',

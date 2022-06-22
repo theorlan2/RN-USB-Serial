@@ -1,0 +1,11 @@
+{
+    "inputs":{
+        "type":"Tipo",
+         "command":"Comando en Hexadecimal",
+         "calculate":"Calcular"
+    },
+    "titles":{
+        "result":"Resultado:",
+        "copy":"Copiar"
+    }
+}
