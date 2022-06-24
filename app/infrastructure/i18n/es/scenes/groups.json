@@ -1,0 +1,38 @@
+{
+    "addGroup":{
+        "titles":{
+            "addCommand":"AGREGAR COMANDO",
+            "addMacro": "AGREGAR MACRO",
+            "empty":"No hay Comandos creados"
+        },
+        "inputs":{
+            "name":"Nombre",
+            "command":"Comando en Hexadecimal",
+            "timeDelay":"Tiempo de retraso",
+            "macro":"Macro"
+        },
+        "buttons":{
+            "addCommand":"Agregar Comando",
+            "addMacro":"Agregar Macro"
+        },
+        "dialogLoading": {
+            "save":{
+                "title":"Guardando datos",
+                "description":"Guardando datos de configuracion..."
+            },
+            "loading":{
+                "title":"Cargando datos",
+                "description":"Obteniendo datos de configuracion guardados..."
+            }
+        }
+    },
+    "loadGroup":{
+        "titles":{
+            "empty":"No hay Grupos creados"
+        },
+        "deleteDialog":{
+            "title":"¿Desas eliminar este grupo?",
+            "description":"Si eliminas el grupo deberas crear uno de nuevo."
+        }
+    }
+}

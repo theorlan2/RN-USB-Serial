@@ -6,6 +6,8 @@ type Props = {
     title: string,
     description: string,
     icon: string,
+    bgColor?: string,
+    colorText?: string,
     onPress: () => void
 }
 
@@ -17,26 +19,26 @@ const ButtonWithDescription: FunctionComponent<Props> = (props) => {
             flex: 1, flexDirection: 'column', width: '96%', alignSelf: 'center'
         },
         contBtn: {
-            marginVertical: 10, backgroundColor: '#fff', elevation: 2, padding: 10,
+            marginVertical: 10, backgroundColor: props.bgColor, elevation: 2, padding: 10, borderRadius:2
         },
         contTitleBtn: {
             flexDirection: 'row', alignItems: 'center', marginVertical: 5
         },
         titleBtn: {
-            fontWeight: 'bold', fontSize: 18, marginLeft: 10
+            fontWeight: 'bold', fontSize: 18, marginLeft: 10, color: props.colorText
         },
         contDescription: {
             flexDirection: 'row'
         },
         textDescription: {
-            fontWeight: '400', fontSize: 16,
+            fontWeight: '400', fontSize: 16, color: props.colorText
         }
     })
 
     return (
         <Pressable onPress={props.onPress} style={styles.contBtn} >
             <View style={styles.contTitleBtn} >
-                <IonicIcon name={props.icon} size={32} color="#444" />
+                <IonicIcon name={props.icon} size={32} color={props.colorText} />
                 <Text style={styles.titleBtn} >{props.title}</Text>
             </View>
             <View style={styles.contDescription} >
@@ -47,3 +49,8 @@ const ButtonWithDescription: FunctionComponent<Props> = (props) => {
 }
 
 export default ButtonWithDescription;
+
+ButtonWithDescription.propTypes = {
+ colorText:'#444',
+ bgColor:'#fff'
+}

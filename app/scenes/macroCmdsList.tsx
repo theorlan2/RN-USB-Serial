@@ -9,6 +9,9 @@ import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 import { RootStackParamList } from '../routes/routesNames';
 import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
 import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd';
+import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../infrastructure/contexts/themeContexts';
 //
 type MacroCmdsListScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -21,41 +24,39 @@ interface Props {
 
 const MacroCmdsListScreen: FunctionComponent<Props> = (props) => {
 
+    const { t } = useTranslation(['defaultData', 'macros'])
+    const { colors } = useTheme();
     const [macrosCmdsData, setGroupsCmdsData] = useState([] as GroupCmdModelView[]);
     const [showModalLoading, setShowModalLoading] = useState(true);
 
     useEffect(() => {
         getDataFromStorage();
         return () => { };
-    }, [macrosCmdsData])
+    }, [])
 
     function getDataFromStorage() {
         setShowModalLoading(true);
         getStoreData('macrosCmds').then(r => {
+            setShowModalLoading(false);
             if (r) {
                 setGroupsCmdsData(r);
             }
-        }).then(() => {
+        }).catch(() => {
             setShowModalLoading(false);
-        })
-            .then(() => {
-            })
-            .catch(() => {
-            });
+        });
     }
 
     function openMacro(id: number) {
         props.navigation.navigate('MacroCmds', { id: id });
     }
     function alertDelete(id: number) {
-        Alert.alert("¿Desas eliminar este grupo?", "Si eliminas el grupo deberas crear uno de nuevo.",
+        Alert.alert(t('macros:loadMacros.delete.title'), t('macros:loadMacros.delete.description'),
             [
                 {
-                    text: "Cancelar",
-                    onPress: () => console.log("Cancel Pressed"),
+                    text: t('defaultData:buttons.cancel'),
                     style: "cancel"
                 },
-                { text: "Si, eliminar", onPress: () => deleteMacro(id) }
+                { text: t('defaultData:buttons.delete'), onPress: () => deleteMacro(id) }
             ])
     }
 
@@ -66,29 +67,29 @@ const MacroCmdsListScreen: FunctionComponent<Props> = (props) => {
 
     const styles = StyleSheet.create({
         mainCont: {
+            flex: 1, flexDirection: 'column'
+        },
+        scrollViewCont: {
             flex: 1, flexDirection: 'column', width: '96%', alignSelf: 'center'
         },
-        contBtn: {
-            marginVertical: 10, backgroundColor: '#fff', elevation: 2, padding: 10,
+        contEmpty: {
+            marginVertical: 10, alignSelf: 'center'
         },
-        contTitleBtn: {
-            flexDirection: 'row', alignItems: 'center', marginVertical: 5
-        },
-        titleBtn: {
-            fontWeight: 'bold', fontSize: 18, marginLeft: 10
+        textEmpty: {
+            textAlign: 'center', color: colors.text
         }
     })
 
     return (
-        <View style={{ flex: 1, flexDirection: 'column' }} >
-            <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
-            <ScrollView style={styles.mainCont}   >
-            {macrosCmdsData.length < 1 && <View style={{ marginVertical: 10, alignSelf: 'center', }} >
-                    <Text style={{ textAlign: 'center' }} >No hay Macros creados</Text>
+        <View style={styles.mainCont} >
+            <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
+            <ScrollView style={styles.scrollViewCont}   >
+                {macrosCmdsData.length < 1 && <View style={styles.contEmpty} >
+                    <Text style={styles.textEmpty} >{t('macros:loadMacros.titles.empty')}</Text>
                 </View>}
                 {macrosCmdsData.map((item, key) => <CardGroup key={item.id + key} item={item} openGroup={openMacro} deleteGroup={alertDelete} />)}
             </ScrollView>
-            <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={"Cargando datos"} description={"Obteniendo datos de macros guardados..."} loading={true} />
+            <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={t('macros:loadMacros.loading.title')} description={t('macros:loadMacros.loading.description')} loading={true} />
         </View>
     );
 }

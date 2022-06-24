@@ -1,0 +1,18 @@
+{
+    "buttons": {
+        "ok": "Ok",
+        "send": "Enviar",
+        "run": "Ejecutar",
+        "cancel": "Cancelar",
+        "back": "Volver",
+        "save": "Guardar",
+        "addCmd": "Agregar Comando",
+        "addCommand":"Agregar Comando",
+        "addMacro":"Agregar Macro",
+        "delete":"Elminiar"
+    },
+    "description": {
+        "send": "Enviar",
+        "received": "Recivido"
+    }
+}

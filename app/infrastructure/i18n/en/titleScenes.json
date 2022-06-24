@@ -1,0 +1,14 @@
+{
+    "titles": {
+        "home": "Home",
+        "configuration": "Configuration",
+        "groupCommands": "Group Commands",
+        "sendTempCommands": "Send Temps Commands",
+        "commandList": "Command List",
+        "macroList": "Macro List",
+        "groupList": "Group List",
+        "macro": "Macro",
+        "sendCommands": "Send Commands",
+        "calculateCrc": "Calculate CRC"
+    }
+}

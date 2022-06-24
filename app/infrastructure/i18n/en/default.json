@@ -1,0 +1,17 @@
+{
+    "buttons": {
+        "ok": "Ok",
+        "send": "Send",
+        "run": "Run",
+        "cancel": "Cancel",
+        "back": "Back",
+        "save": "Save",
+        "addCmd": "Add Command",
+        "addCommand":"Add Command",
+        "addMacro":"Add Macro",
+        "delete":"Delete"
+    },
+    "description":{
+        "received": "Received"
+    }
+}
