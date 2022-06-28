@@ -1,8 +1,7 @@
 import { Context } from "react";
-import { Alert, DeviceEventEmitter } from "react-native";
+import { DeviceEventEmitter } from "react-native";
 import { RNSerialport, definitions, actions, ReturnedDataTypes } from "react-native-serialport";
 import { ParitiesEnum, DataBitsEnum, StopBitsEnum } from "../enums/configurationDataEnum";
-
 
 
 export const conectionSerialC = {
@@ -38,7 +37,7 @@ export function startUsbListener(context: any, conectionSerial: ConectionSerial 
     );
     
     DeviceEventEmitter.addListener(actions.ON_READ_DATA, onReadData, context);
-    RNSerialport.setReturnedDataType(definitions.RETURNED_DATA_TYPES.HEXSTRING);
+    RNSerialport.setReturnedDataType(definitions.RETURNED_DATA_TYPES.HEXSTRING as ReturnedDataTypes);
     if (_conectionSerial.baudRate) {
         RNSerialport.setAutoConnectBaudRate(+_conectionSerial.baudRate);
         RNSerialport.setInterface(parseInt("-1", 10));

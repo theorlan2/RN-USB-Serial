@@ -8,9 +8,9 @@ import ButtonWithDescription from '../components/ButtonWithDescription';
 //
 import ModalAddGroupFC from '../components/ModalAddGroupFC';
 import ModalInfoFC from '../components/ModalInfoFC';
-import { StatusConnectionEnum, useSerialStatus } from '../infrastructure/contexts/serialStatusContext';
+import { useSerialStatus } from '../infrastructure/contexts/serialStatusContext';
 import { useTheme } from '../infrastructure/contexts/themeContexts';
-import { ConectionSerial, startUsbListener, validateIsRun } from '../infrastructure/utils/serialConnection'
+import {  ConectionSerial, validateIsRun } from '../infrastructure/utils/serialConnection'
 import { RootStackParamList } from '../routes/routesNames';
 
 type HomeScreenNavigationProp = StackNavigationProp<
@@ -30,18 +30,19 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
     const [showModalLoading, setShowModalLoading] = useState(false);
     const [showModalAddGroup, setShowModalAddGroup] = useState(false);
     const [showModalAddMacro, setShowModalAddMacro] = useState(false);
-    const { setConnectStatus } = useSerialStatus();
+    const { connectDevice } = useSerialStatus();
 
     useEffect(() => {
         validateIsRun().then((r) => {
-            if (!r)
+            if (!r) 
                 getDataFromStorage();
         })
     }, [])
 
 
     function getDataFromStorage() {
-        let result = {} as any;
+        let result = null as unknown as ConectionSerial;
+        let vm = this as any;
         setShowModalLoading(true);
         getData('configuration').then(r => {
             if (r) {
@@ -59,7 +60,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
             setShowModalLoading(false);
             return r;
         }).then((r) => {
-            connectDevice(result);
+            connectDevice(vm,result);
         });
     }
 
@@ -67,8 +68,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
         let result = null;
         try {
             const jsonValue = await AsyncStorage.getItem('@' + key)
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-            result = jsonValue;
+            return jsonValue != null ? JSON.parse(jsonValue) : null; 
         } catch (e) {
             // error reading value
         }
@@ -85,37 +85,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
             Alert.alert('Error guardando', 'Ha ocurrido un error guardando.')
         }
     }
-
-    function connectDevice(this: any, configuration: ConectionSerial) {
-        startUsbListener(this,
-            {
-                baudRate: configuration.baudRate,
-                interface: configuration.interface,
-                dataBits: +configuration.dataBits,
-                stopBits: +configuration.stopBits,
-                parity: +configuration.parity,
-                returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING as any
-            },
-            //OnRead
-            (data) => {
-
-            },
-            // onConnect
-            (data) => {
-                setConnectStatus(StatusConnectionEnum.DEVICE_CONNECT);
-            },
-            // OnDisconnect
-            (data) => {
-                setConnectStatus(StatusConnectionEnum.SERVICE_START);
-            },
-            // onError
-            (data) => { },
-            // on StartService 
-            (data) => {
-                setConnectStatus(StatusConnectionEnum.SERVICE_START);
-            })
-    }
-
+ 
 
     const styles = StyleSheet.create({
         mainCont: {
@@ -127,6 +97,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
     function addGroup() {
         setShowModalAddGroup(true);
     }
+    
     function addGMacro() {
         setShowModalAddMacro(true);
     }
