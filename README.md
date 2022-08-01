@@ -1,12 +1,14 @@
+<p align="center">
+<img src="./resources/screenshots/images-app.png" width="800" alt="app_screenshots"  >
+</p>
 
- 
-***React Native Serial***
+## React Native Serial
 
 Application in React Native (Android), for sending commands in hexadecimal for Serial USB.
 
 To configure the serial connection there is the configuration view where you can select the speed of Rate, Parity, Data Bits and Stop Bits.
 
-In the application you can create:
+**In the application you can create:**
 
 **Temporary:** Commands that will be created but not saved. It can be used to test communication using 1 or 2 commands.
 
@@ -14,17 +16,18 @@ In the application you can create:
 
 **Groups:** They are groups of commands and Macros that will be sent in a time interval, depending on the configuration. Being able to send a various command macros.
 
+---
 
 
-*ESPAÑOL:*
+**ESPAÑOL:**
 
-***React Native Serial***
+## React Native Serial
 
 Aplicación en React Native (Android), para el envió de comandos en hexadecimal vía Serial USB.
 
 Para configurar la conexión serial esta la vista de configuración donde puede seleccionar la velocidad de Rate, el Parity, Data Bits y Stop Bits.
 
-Dentro de la aplicación se puedan crear:
+**Dentro de la aplicación se puedan crear:**
 
 **Temporal:** Comandos que se crearan pero no se guardaran. Puede utilizarse para probar la comunicación utilizando 1 o 2 comandos.
 
