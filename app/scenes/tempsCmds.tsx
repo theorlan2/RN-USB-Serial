@@ -1,6 +1,6 @@
 import { Picker } from '@react-native-picker/picker'
 import React, { FunctionComponent, useRef, useState } from 'react'
-import { Button, Pressable, ScrollView, StatusBar, Text, TextInput, View } from 'react-native'
+import { Button, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import CardCmd from '../components/GroupsCmd/CardCmd';
 
@@ -106,19 +106,55 @@ const TempCmdScreen: FunctionComponent = () => {
         setEventChange(Date.now().toString());
     }
 
-    return (
-        <View style={{ flex: 1, flexDirection: 'column' }} >
-            <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
-            <ScrollView style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
+    const styles = StyleSheet.create({
+        main: {
+            flex: 1, flexDirection: 'column'
+        },
+        scrollContainer: {
+            flex: 1, maxWidth: '96%', alignSelf: 'center', width: '100%'
+        },
+        titleForm: {
+            fontWeight: 'bold', fontSize: 16, textAlign: 'center', color: colors.text
+        },
+        formGroup: {
+            marginVertical: 10, paddingBottom: 15,
+        },
+        titleInput: {
+            fontWeight: 'bold', fontSize: 12, marginBottom: 5, color: colors.text
+        },
+        contInput: {
+            backgroundColor: '#fff', elevation: 2, color: colors.text
+        },
+        scrollCommands: {
+            flex: 1, width: '100%', backgroundColor: colors.background_3
+        },
+        contButtons: {
+            marginVertical: 10, flex: 1, flexDirection: 'row'
+        },
+        contButton:{
+            flex: 1, marginRight: 5
+        },
+        contButtonR:{
+            flex: 1, marginLeft: 5
+        },
+        bottomButton:{
+            backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end'
+        }
 
+    })
+
+    return (
+        <View style={styles.main} >
+            <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
+            <ScrollView style={styles.scrollContainer}   >
                 {cmds.map((item, indx) => <CardCmd isMacro={item.isMacro ? true : false} key={indx} item={item} position={indx} editCmd={editCmd} deleteCmd={deleteCmd} upPosition={_upPositionElement} downPosition={_downPositionElement} />)}
 
                 <>
                     {showAddCmd && <View style={{ marginVertical: 10 }} >
-                        <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center' }} >{t('sendTempCmds:titles.addCmd')}</Text>
-                        <View style={{ marginVertical: 10, paddingBottom: 15, }} >
-                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >{t('sendTempCmds:inputs.name')}:</Text>
-                            <View style={{ backgroundColor: '#fff', elevation: 2 }} >
+                        <Text style={styles.titleForm} >{t('sendTempCmds:titles.addCmd')}</Text>
+                        <View style={styles.formGroup} >
+                            <Text style={styles.titleInput} >{t('sendTempCmds:inputs.name')}:</Text>
+                            <View style={styles.contInput} >
                                 <TextInput
                                     placeholder={t('sendTempCmds:inputs.name')}
                                     value={title}
@@ -126,9 +162,9 @@ const TempCmdScreen: FunctionComponent = () => {
                                 />
                             </View>
                         </View>
-                        <View style={{ marginVertical: 10, paddingBottom: 15, }} >
-                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >{t('sendTempCmds:inputs.cmd')}:</Text>
-                            <View style={{ backgroundColor: '#fff', elevation: 2 }} >
+                        <View style={styles.formGroup} >
+                            <Text style={styles.titleInput} >{t('sendTempCmds:inputs.cmd')}:</Text>
+                            <View style={styles.contInput} >
                                 <TextInput
                                     placeholder={t('sendTempCmds:inputs.cmd')}
                                     value={cmd}
@@ -136,9 +172,9 @@ const TempCmdScreen: FunctionComponent = () => {
                                 />
                             </View>
                         </View>
-                        <View style={{ marginVertical: 10 }} >
-                            <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5 }} >{t('sendTempCmds:inputs.timeOut')}:</Text>
-                            <View style={{ backgroundColor: '#fff', elevation: 2 }} >
+                        <View style={styles.formGroup} >
+                            <Text style={styles.titleInput} >{t('sendTempCmds:inputs.timeOut')}:</Text>
+                            <View style={styles.contInput} >
                                 <Picker
                                     selectedValue={time}
                                     style={{ height: 50, width: '100%' }}
@@ -147,36 +183,36 @@ const TempCmdScreen: FunctionComponent = () => {
                                 </Picker>
                             </View>
                         </View>
-                        <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
-                            <View style={{ flex: 1, marginRight: 5 }} >
+                        <View style={styles.contButtons} >
+                            <View style={styles.contButton} >
                                 <Button title={t('defaultData:buttons.cancel')} onPress={() => setShowAddCmd(false)} color="red" disabled={disabledAdd} ></Button>
                             </View>
-                            <View style={{ flex: 1, marginLeft: 5 }} >
+                            <View style={styles.contButtonR} >
                                 <Button title={t('defaultData:buttons.addCmd')} onPress={addCmd} color={colors.primary} disabled={disabledAdd} ></Button>
                             </View>
                         </View>
                     </View>}
-                    {cmds.length < 1 && <View style={{ marginVertical: 10 }} >
+                    {cmds.length < 1 && !showAddCmd && <View style={{ marginVertical: 10 }} >
                         <Text style={{ textAlign: 'center', color: colors.text }} >{t('sendTempCmds:titles.empty')}</Text>
                     </View>}
 
                 </>
 
-                {!showAddCmd && <View style={{ marginVertical: 10, flex: 1, flexDirection: 'row' }} >
+                {!showAddCmd && <View style={styles.contButtons} >
 
                     <View style={{ flex: 1, marginLeft: 5 }} >
                         <Button title={t('sendTempCmds:titles.addCmd')} onPress={() => showAddCmd ? addCmd() : setShowAddCmd(true)} color="#00BBD3" disabled={disabledAdd} ></Button>
                     </View>
                 </View>}
             </ScrollView>
-            <ScrollView style={{ flex: 1, width: '100%', backgroundColor: colors.background_3 }} contentContainerStyle={{}} >
-                <Text style={{ margin: 10, color: colors.text }} >{t('sendTempCmds:titles.log')}:</Text>
+            <ScrollView style={styles.scrollCommands} contentContainerStyle={{}} >
+                <Text style={styles.titleForm} >{t('sendTempCmds:titles.log')}:</Text>
                 {logCMD.map((item: { isSend: boolean, cmd: CmdModelView }, indx: number) => <Text style={{ margin: 10 }} key={indx + 'log-cmd'} ><Text style={{ fontWeight: 'bold' }} >{item.isSend ? t('defaultData:description.send') : t('defaultData:description.received')}</Text>{item.cmd}</Text>)}
             </ScrollView>
             <View style={{ position: 'absolute', width: 60, height: 60, bottom: 16, right: 16, }} >
-                <Pressable onPress={_runCmds} style={{ backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end' }} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>
+                <Pressable onPress={_runCmds} style={styles.bottomButton} ><IonicIcon name="play-outline" size={24} color="#fff" /></Pressable>
             </View>
-        </View>
+        </View >
     );
 }
 

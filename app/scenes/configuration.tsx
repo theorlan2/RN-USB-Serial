@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, Button, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Alert, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -8,11 +8,17 @@ import ModalInfoFC from '../components/ModalInfoFC';
 import { DataBitsEnum, ParitiesEnum, StopBitsEnum } from '../infrastructure/enums/configurationDataEnum';
 import { useTheme } from '../infrastructure/contexts/themeContexts';
 import { useTranslation } from 'react-i18next';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../routes/routesNames';
 
 
-type StateProps = {}
+type HomeScreenNavigationProp = StackNavigationProp<
+    RootStackParamList,
+    'Configuration'>;
 
-type Props = StateProps;
+interface Props {
+    navigation: HomeScreenNavigationProp;
+}
 
 
 const ConfigurationScreen: FunctionComponent<Props> = (props) => {

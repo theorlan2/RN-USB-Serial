@@ -42,7 +42,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
 
     function getDataFromStorage() {
         let result = null as unknown as ConectionSerial;
-        let vm = this as any;
+        let context = this;
         setShowModalLoading(true);
         getData('configuration').then(r => {
             if (r) {
@@ -60,7 +60,7 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
             setShowModalLoading(false);
             return r;
         }).then((r) => {
-            connectDevice(vm,result);
+            connectDevice(context,result);
         });
     }
 

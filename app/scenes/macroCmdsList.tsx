@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Alert, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native' 
 import { StackNavigationProp } from '@react-navigation/stack';
 //
 import CardGroup from '../components/GroupsCmd/CardGroup';
@@ -8,8 +7,7 @@ import ModalInfoFC from '../components/ModalInfoFC';
 import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 import { RootStackParamList } from '../routes/routesNames';
 import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
-import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd';
-import { t } from 'i18next';
+import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd'; 
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../infrastructure/contexts/themeContexts';
 //
