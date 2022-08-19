@@ -30,7 +30,7 @@ const CalCRCCmdScreen: FunctionComponent<Props> = (props) => {
         { name: 'CRC8 / MAXIM', value: 'crc8Mixim' },
         { name: 'CRC16 / Modbus', value: 'crc16Modbus' },
     ]);
-    const [type, setType] = useState('');
+    const [type, setType] = useState('crc8Mixim');
     const [cmd, setCmd] = useState('');
     const [result, setResult] = useState('');
 

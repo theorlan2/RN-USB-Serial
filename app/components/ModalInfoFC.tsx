@@ -30,7 +30,8 @@ const ModalInfoFC: FunctionComponent<Props> = (props: Props) => {
         contModal: { backgroundColor: colors.background, elevation: 3, borderRadius: 2, marginHorizontal: 10, paddingVertical: 20, paddingHorizontal: 15 },
         titleModal: { fontSize: 20, fontWeight: '600', color: colors.text },
         description: { fontSize: 14, fontWeight: '300',color: colors.text },
-        errorText: { color: 'red', marginBottom: 5 }
+        errorText: { color: 'red', marginBottom: 5 },
+        contButton: { marginTop: 15, marginBottom: 5, alignItems: 'flex-end'  }
     });
 
     return (
@@ -47,8 +48,8 @@ const ModalInfoFC: FunctionComponent<Props> = (props: Props) => {
                             <Text style={styles.description} >{props.description}</Text>
                             {props.loading && <ProgressBar style={{ marginVertical: 5 }} styleAttr="Horizontal" color={colors.text} />}
 
-                            {!props.loading && <View style={{ marginTop: 15, marginBottom: 5, alignItems: 'flex-end' }} >
-                                <Button color={'#444'} onPress={props.closeModal} title="CERRAR" ></Button>
+                            {!props.loading && <View style={styles.contButton} >
+                                <Button color={'#444'} onPress={props.closeModal} title="CLOSE" ></Button>
                             </View>}
                         </View>
                     </View>

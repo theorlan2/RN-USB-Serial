@@ -1,10 +1,11 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react'
-import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native'
+import { Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native'
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import CardCmd from '../components/GroupsCmd/CardCmd';
 import ModalInfoFC from '../components/ModalInfoFC';
+import { useTheme } from '../infrastructure/contexts/themeContexts';
 import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
 import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
 import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd';
@@ -26,7 +27,7 @@ interface Props {
 
 let listCmdsY = [] as number[];
 const RunCmdScreen: FunctionComponent<Props> = (props) => {
-
+    const { colors } = useTheme();
     const [cmds, setCmds] = useState([] as CmdModelView[]);
     const [showModalLoading, setShowModalLoading] = useState(false);
     const [logCMD, setLogCMD] = useState([] as any[]);
@@ -141,10 +142,15 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
         sendData('HEX', _cmd);
     }
 
+    const styles = StyleSheet.create({
+        main:{
+            flex: 1, flexDirection: 'column'
+        }
+    })
 
     return (
-        <View style={{ flex: 1, flexDirection: 'column' }} >
-            <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
+        <View style={styles.main} >
+            <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
             <ScrollView ref={scrollViewRef1} style={{ flex: 4, maxWidth: '96%', alignSelf: 'center', width: '100%' }}   >
                 {cmds.map((item, indx) => <View key={indx} onLayout={event => {
                     const { layout } = event.nativeEvent; listCmdsY.push(layout.y);

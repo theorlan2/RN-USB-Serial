@@ -50,7 +50,4 @@ const ButtonWithDescription: FunctionComponent<Props> = (props) => {
 
 export default ButtonWithDescription;
 
-ButtonWithDescription.propTypes = {
- colorText:'#444',
- bgColor:'#fff'
-}
+ButtonWithDescription.propTypes = {}
