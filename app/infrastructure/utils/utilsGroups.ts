@@ -52,10 +52,12 @@ export function upPositionElement(id: number, cmds: CmdModelView[], callBack: (r
 export function downPositionElement(id: number, cmds: CmdModelView[], callBack: (result: CmdModelView[]) => void) {
     let _cmds = cmds;
     let indx = cmds.findIndex(item => item.id == id);
-    let result = moveArrayItemToNewIndex(_cmds, indx, (indx - 1))
-    _cmds = result;
-    if (callBack)
-        callBack(_cmds);
+    if (indx - 1 > 0) {
+        let result = moveArrayItemToNewIndex(_cmds, indx, (indx - 1))
+        _cmds = result;
+        if (callBack)
+            callBack(_cmds);
+    }
 }
 
 function moveArrayItemToNewIndex(arr: CmdModelView[], old_index: number, new_index: number): CmdModelView[] {

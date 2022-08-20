@@ -41,10 +41,10 @@ const HeaderRight: FunctionComponent<Props> = (props) => {
     }
 
     const styles = StyleSheet.create({
-        contStatus:{
+        contStatus: {
             flex: 1, flexDirection: 'row', alignItems: 'center', marginHorizontal: 10
         },
-        statusText:{
+        statusText: {
             width: 10, height: 10, alignSelf: 'center', borderRadius: 40
         },
         btnIcon: {
@@ -58,12 +58,13 @@ const HeaderRight: FunctionComponent<Props> = (props) => {
         <View style={{ flex: 1, flexDirection: 'row' }} >
             <View style={styles.contStatus} >
                 <Text style={{ color: 'white', marginRight: 5 }} >{t('layout:headerRight.status')}</Text>
-                <View style={{ backgroundColor: colorStatus, ...styles.statusText  }} >
+                <View style={{ backgroundColor: colorStatus, ...styles.statusText }} >
                 </View>
             </View>
-             <Pressable onPress={setTheme} style={styles.btnContIcon} >
-                <MaterialIcon name="brightness-6" style={styles.btnIcon} ></MaterialIcon>
-            </Pressable> 
+            <Pressable onPress={setTheme} style={styles.btnContIcon} >
+                {!isDark && <IonicIcon name="moon-outline" style={styles.btnIcon} />}
+                {isDark && <IonicIcon name="sunny-outline" style={styles.btnIcon} />}
+            </Pressable>
             <Pressable style={{ padding: 10, alignSelf: 'center' }} onPress={() => { navigation.navigate('Configuration') }} >
                 <IonicIcon name="settings-outline" size={20} color="white" />
             </Pressable>

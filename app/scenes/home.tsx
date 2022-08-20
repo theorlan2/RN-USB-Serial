@@ -1,26 +1,46 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { StackNavigationProp } from '@react-navigation/stack';
 import React, { FunctionComponent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, StatusBar, StyleSheet, View } from 'react-native'
+import { ScrollView, StatusBar, StyleSheet, View } from 'react-native'
 import { definitions } from 'react-native-serialport';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 import ButtonWithDescription from '../components/ButtonWithDescription';
 //
 import ModalAddGroupFC from '../components/ModalAddGroupFC';
 import ModalInfoFC from '../components/ModalInfoFC';
 import { useSerialStatus } from '../infrastructure/contexts/serialStatusContext';
 import { useTheme } from '../infrastructure/contexts/themeContexts';
-import {  ConectionSerial, validateIsRun } from '../infrastructure/utils/serialConnection'
+import ConfigurationModelView from '../infrastructure/modelViews/Configuration';
+import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
+import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd';
+import { ConectionSerial, validateIsRun } from '../infrastructure/utils/serialConnection'
 import { RootStackParamList } from '../routes/routesNames';
+import { RootState } from '../store';
+import { addGroup, deleteGroup } from '../store/features/groupSlice';
+import { addMacro } from '../store/features/macroSlice';
 
 type HomeScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
     'Home'
 >;
 
-interface Props {
+interface StateProps {
+    configuration: ConfigurationModelView | undefined;
+    groups: GroupCmdModelView[] | undefined;
+    macros: MacroCmdModelView[] | undefined;
+}
+
+interface DispatchProps {
+    addGroup: (data: GroupCmdModelView) => void;
+    addMacro: (data: MacroCmdModelView) => void;
+}
+interface OwnProps {
     navigation: HomeScreenNavigationProp;
 }
+
+type Props = StateProps & DispatchProps & OwnProps;
+
 
 const HomeScreen: FunctionComponent<Props> = (props) => {
 
@@ -34,70 +54,34 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
 
     useEffect(() => {
         validateIsRun().then((r) => {
-            if (!r) 
+            if (!r)
                 getDataFromStorage();
         })
     }, [])
 
 
-    function getDataFromStorage() {
+    function getDataFromStorage(this: any) {
         let result = null as unknown as ConectionSerial;
         let context = this;
         setShowModalLoading(true);
-        getData('configuration').then(r => {
-            if (r) {
-                result = {
-                    interface: "-1",
-                    baudRate: r.baud_rate,
-                    parity: r.parity,
-                    dataBits: r.data_bits,
-                    stopBits: r.stop_bits,
-                    returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING as any
-                };
-            }
-            return r;
-        }).then((r) => {
-            setShowModalLoading(false);
-            return r;
-        }).then((r) => {
-            connectDevice(context,result);
-        });
-    }
-
-    async function getData(key: string): Promise<any> {
-        let result = null;
-        try {
-            const jsonValue = await AsyncStorage.getItem('@' + key)
-            return jsonValue != null ? JSON.parse(jsonValue) : null; 
-        } catch (e) {
-            // error reading value
+        if (props.configuration) {
+            result = {
+                interface: "-1",
+                baudRate: props.configuration.baud_rate,
+                parity: props.configuration.parity,
+                dataBits: props.configuration.data_bits,
+                stopBits: props.configuration.stop_bits,
+                returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING as any
+            };
         }
-        return result;
+        setShowModalLoading(false);
+        connectDevice(context, result);
     }
-
-
-    async function storeData(key: string, value: any) {
-        try {
-            const jsonValue = JSON.stringify(value)
-            await AsyncStorage.setItem('@' + key, jsonValue)
-        } catch (e) {
-            // saving error
-            Alert.alert('Error guardando', 'Ha ocurrido un error guardando.')
-        }
-    }
- 
-
-    const styles = StyleSheet.create({
-        mainCont: {
-            flex: 1, flexDirection: 'column', width: '96%', alignSelf: 'center'
-        },
-
-    })
 
     function addGroup() {
         setShowModalAddGroup(true);
     }
-    
+
     function addGMacro() {
         setShowModalAddMacro(true);
     }
@@ -105,52 +89,44 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
     function createGroup(name: string) {
         setShowModalAddGroup(false);
         setShowModalLoading(true);
-
-        let groupsCmdsData = [] as any;
         let id = Date.now();
-        getData('groupsCmds').then(r => {
-            if (r) {
-                groupsCmdsData = r;
-            }
-        }).then(() => {
-            groupsCmdsData.push({
-                id: id,
-                title: name,
-                listCmds: []
-            })
-            storeData("groupsCmds", groupsCmdsData).then(() => {
-                setShowModalLoading(false);
-                setTimeout(() => {
-                    props.navigation.navigate('GroupCmds', { id: id });
-                }, 500);
-            });
-        });
+
+        props.addGroup({
+            id: id,
+            title: name,
+            listCmds: []
+        })
+        setShowModalLoading(false);
+        setTimeout(() => {
+            props.navigation.navigate('GroupCmds', { id: id });
+        }, 500);
+
     }
 
     function createMacro(name: string) {
         setShowModalAddMacro(false);
         setShowModalLoading(true);
-        let groupsCmdsData = [] as any;
         let id = Date.now();
-        getData('macrosCmds').then(r => {
-            if (r) {
-                groupsCmdsData = r;
-            }
-        }).then(() => {
-            groupsCmdsData.push({
-                id: id,
-                title: name,
-                listCmds: []
-            })
-            storeData("macrosCmds", groupsCmdsData).then(() => {
-                setShowModalLoading(false);
-                setTimeout(() => {
-                    props.navigation.navigate('MacroCmds', { id: id });
-                }, 500);
-            });
-        });
+        props.addMacro({
+            id: id,
+            title: name,
+            listCmds: []
+        })
+        setShowModalLoading(false);
+        setTimeout(() => {
+            props.navigation.navigate('MacroCmds', { id: id });
+        }, 500);
+
     }
 
+
+
+    const styles = StyleSheet.create({
+        mainCont: {
+            flex: 1, flexDirection: 'column', width: '96%', alignSelf: 'center'
+        },
+
+    })
     return (
         <View style={{ flex: 1, flexDirection: 'column' }} >
             <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
@@ -177,4 +153,23 @@ const HomeScreen: FunctionComponent<Props> = (props) => {
 }
 
 
-export default HomeScreen;
+
+const mapStateToProps = (state: RootState) => {
+
+    return {
+        configuration: state.configuration.configuration,
+        groups: state.group.groups,
+        macros: state.macro.macros
+    }
+}
+
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+    return {
+        addGroup: (data: GroupCmdModelView) => dispatch(addGroup(data)),
+        addMacro: (data: MacroCmdModelView) => dispatch(addMacro(data)),
+        deleteGroup: (id: number) => dispatch(deleteGroup(id)),
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

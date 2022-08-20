@@ -1,6 +1,6 @@
+import React, { FunctionComponent, useEffect, useRef, useState } from 'react'
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import React, { FunctionComponent, useEffect, useRef, useState } from 'react'
 import { Pressable, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native'
 import IonicIcon from 'react-native-vector-icons/Ionicons';
 import CardCmd from '../components/GroupsCmd/CardCmd';
@@ -14,16 +14,35 @@ import { addEventListenerReadData, sendData } from '../infrastructure/utils/seri
 import { downPositionElement, runCmds, stopTimeout, upPositionElement } from '../infrastructure/utils/utilsGroups';
 import { getStoreData } from '../infrastructure/utils/utilsStore';
 import { RootStackParamList } from '../routes/routesNames';
+import { connect } from 'react-redux';
+import { addGroup, deleteGroup } from '../store/features/groupSlice';
+import { Dispatch } from 'redux';
+import { RootState } from '../store';
 
 type RunCmdScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
     'RunCmds'
 >;
 
-interface Props {
+
+interface StateProps {
+    groups: GroupCmdModelView[] | undefined;
+    macros: MacroCmdModelView[] | undefined;
+}
+
+interface DispatchProps {
+    addGroup: (data: GroupCmdModelView) => void;
+    editGroup: (data: GroupCmdModelView) => void;
+    editMacro: (data: MacroCmdModelView) => void;
+    deleteGroup: (id: number) => void;
+}
+interface OwnProps {
     navigation: RunCmdScreenNavigationProp;
     route: RouteProp<RootStackParamList, 'RunCmds'>,
 }
+
+type Props = StateProps & DispatchProps & OwnProps;
+
 
 let listCmdsY = [] as number[];
 const RunCmdScreen: FunctionComponent<Props> = (props) => {
@@ -32,6 +51,7 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
     const [showModalLoading, setShowModalLoading] = useState(false);
     const [logCMD, setLogCMD] = useState([] as any[]);
     const [groupData, setGroupData] = useState({} as GroupCmdModelView);
+    const [idToRun, setIdToRun] = useState(0);
     const [listMacros, setListMacros] = useState([] as MacroCmdModelView[]);
     const [eventChange, setEventChange] = useState('');
     const [isStart, setIsStart] = useState(false);
@@ -40,6 +60,7 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
 
     useEffect(() => {
         if (props.route.params && props.route.params.id) {
+            setIdToRun(props.route.params.id);
             getDataFromStorage();
             eventOnRead();
         }
@@ -56,29 +77,24 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
 
     function getDataFromStorage() {
         setShowModalLoading(true);
-        getStoreData('groupsCmds').then(r => {
-            if (r) {
-                let listGroups = r;
-                let result = listGroups.find((item: GroupCmdModelView) => item.id == props.route.params.id);
-                if (result) {
-                    setCmds(result.listCmds);
-                    setGroupData(result);
-                } else {
-                    props.navigation.navigate('Home');
-                }
+        const groups = props.groups;
+        if (groups) {
+            let result = groups.find((item: GroupCmdModelView) => item.id == idToRun);
+            if (result) {
+                setCmds(result.listCmds);
+                setGroupData(result);
+            } else {
+                props.navigation.navigate('Home');
             }
-        }).then(() => {
-            getStoreData('macrosCmds').then(r => {
-                if (r) {
-                    let listMacros = r as MacroCmdModelView[];
-                    if (listMacros) {
-                        setListMacros(listMacros);
-                    }
-                }
-            }).then(() => {
-                setShowModalLoading(false);
-            })
-        }).then(() => { });
+        }
+
+        const macros = props.macros
+        if (macros) {
+            setListMacros(macros);
+        }
+
+        setShowModalLoading(false);
+
     }
 
 
@@ -127,7 +143,6 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
 
     function _downPositionElement(id: number) {
         downPositionElement(id, cmds, (result => {
-            console.log('r', result);
             setCmds(result);
         }));
         setEventChange(Date.now().toString());
@@ -143,7 +158,7 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
     }
 
     const styles = StyleSheet.create({
-        main:{
+        main: {
             flex: 1, flexDirection: 'column'
         }
     })
@@ -179,4 +194,20 @@ const RunCmdScreen: FunctionComponent<Props> = (props) => {
     );
 }
 
-export default RunCmdScreen;
+const mapStateToProps = (state: RootState) => {
+
+    return {
+        groups: state.group.groups,
+        macros: state.macro.macros
+    }
+}
+
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+    return {
+        addGroup: (data: GroupCmdModelView) => dispatch(addGroup(data)),
+        deleteGroup: (id: number) => dispatch(deleteGroup(id)),
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(RunCmdScreen);
