@@ -40,7 +40,7 @@ const MacroCmdsListScreen: FunctionComponent<Props> = (props) => {
 
     const { t } = useTranslation(['defaultData', 'macros'])
     const { colors } = useTheme();
-    const [showModalLoading, setShowModalLoading] = useState(true);
+    const [showModalLoading, setShowModalLoading] = useState(false);
 
     function openMacro(id: number) {
         props.navigation.navigate('MacroCmds', { id: id });
@@ -80,7 +80,7 @@ const MacroCmdsListScreen: FunctionComponent<Props> = (props) => {
         <View style={styles.mainCont} >
             <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
             <ScrollView style={styles.scrollViewCont}   >
-                {props.macros && props.macros.length < 1 && <View style={styles.contEmpty} >
+                {(props.macros == undefined || props.macros.length < 1) && <View style={styles.contEmpty} >
                     <Text style={styles.textEmpty} >{t('macros:loadMacros.titles.empty')}</Text>
                 </View>}
                 {props.macros && props.macros.map((item, key) => <CardGroup key={item.id + key} item={item} openGroup={openMacro} deleteGroup={alertDelete} />)}

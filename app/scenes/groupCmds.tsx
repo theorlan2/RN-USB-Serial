@@ -27,8 +27,8 @@ type GroupCmdScreenNavigationProp = StackNavigationProp<
 >;
 
 interface StateProps {
-    groups: GroupCmdModelView[];
-    macros: MacroCmdModelView[];
+    groups: GroupCmdModelView[] | undefined;
+    macros: MacroCmdModelView[] | undefined;
 }
 
 interface DispatchProps {
@@ -76,7 +76,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     }, [])
 
     function addMacro() {
-        let r = props.macros.find(item => item.id == macro);
+        let r = props.macros && props.macros.find(item => item.id == macro);
         if (r) {
             setCmds((prevState) => ([
                 ...prevState,
@@ -164,15 +164,16 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
         setIsSave(false);
         setShowModalLoading(true);
 
-        let result = props.groups.find(item => item.id == props.route.params.id);
+        let result = props.groups && props.groups.find(item => item.id == props.route.params.id);
         if (result) {
             setCmds(result.listCmds);
         } else {
             props.navigation.navigate('Home');
         }
-
-        setMacros(props.macros);
-        setMacro(props.macros[0].id);
+        if (props.macros) {
+            setMacros(props.macros);
+            setMacro(props.macros[0].id);
+        }
         setShowModalLoading(false);
 
     }
@@ -182,12 +183,12 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
         setHaveChanges(false);
         setShowModalLoading(true);
         props.editGroup({
-            id:idGroup ,
+            id: idGroup,
             title,
-           listCmds: cmds
+            listCmds: cmds
         });
         setShowModalLoading(false);
- 
+
     }
 
 

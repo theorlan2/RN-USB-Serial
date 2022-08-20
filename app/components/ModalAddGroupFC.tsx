@@ -31,7 +31,7 @@ const ModalAddGroupFC: FunctionComponent<Props> = (props: Props) => {
         contModal: { backgroundColor: colors.background, elevation: 3, borderRadius: 2, marginHorizontal: 10, paddingVertical: 20, paddingHorizontal: 15 },
         titleModal: { fontSize: 20, fontWeight: '600', color: colors.text },
         description: { fontSize: 14, fontWeight: '300', color: colors.text },
-        textInput: { height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 0, color: colors.text },
+        textInput: { height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 0, color: colors.text, backgroundColor: colors.background },
         contButtons: { flexDirection: 'row', justifyContent: 'flex-end' }
     });
 
@@ -51,6 +51,7 @@ const ModalAddGroupFC: FunctionComponent<Props> = (props: Props) => {
                             <TextInput
                                 placeholder="Nombre"
                                 style={styles.textInput}
+                                placeholderTextColor={colors.text}
                                 value={name}
                                 autoFocus={true}
                                 onChangeText={value => setName(value)}

@@ -135,7 +135,7 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
         setShowModalLoading(true);
         const macros = props.macros;
         if (macros) {
-            let result = macros.find((item: MacroCmdModelView) => item.id == idMacro);
+            let result = macros.find((item: MacroCmdModelView) => item.id == props.route.params.id);
             if (result) {
                 setCmds(result.listCmds);
             } else {

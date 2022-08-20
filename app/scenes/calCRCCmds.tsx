@@ -73,7 +73,8 @@ const CalCRCCmdScreen: FunctionComponent<Props> = (props) => {
         },
         textResult: {
             backgroundColor: colors.background_3, padding: 10, fontSize: 20, textAlign: 'center', color: colors.text
-        }
+        },
+        textInput: { height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 0, color: colors.text, backgroundColor: colors.background },
 
     })
 
@@ -100,6 +101,8 @@ const CalCRCCmdScreen: FunctionComponent<Props> = (props) => {
                     <View style={styles.contInput} >
                         <TextInput
                             placeholder={t('calculateCRC:inputs.command')}
+                            placeholderTextColor={colors.text}
+                            style={styles.textInput}
                             value={cmd}
                             onChangeText={value => setCmd(value)}
                             autoCapitalize='characters'

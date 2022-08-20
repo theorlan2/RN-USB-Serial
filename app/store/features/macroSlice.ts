@@ -23,7 +23,8 @@ export const macroSlice = createSlice({
             state.macros = action.payload;
         },
         addMacro: (state, action: PayloadAction<MacroCmdModelView>) => {
-            state.macros && state.macros?.push(action.payload);
+            if (!state.macros) state.macros = [];
+            state.macros?.push(action.payload);
         },
         editMacro: (state, action: PayloadAction<MacroCmdModelView>) => {
             const indexmacro = state.macros && state.macros?.findIndex(
@@ -43,7 +44,7 @@ export const macroSlice = createSlice({
     },
 });
 
-export const { 
+export const {
     setmacros,
     addMacro,
     editMacro,
@@ -52,7 +53,7 @@ export const {
 
 // selectors
 export const selectmacro = (state: RootState) =>
-    state.macro.macro; 
+    state.macro.macro;
 
 
 export default macroSlice.reducer;

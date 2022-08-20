@@ -21,7 +21,8 @@ export const groupSlice = createSlice({
             state.groups = action.payload;
         },
         addGroup: (state, action: PayloadAction<GroupCmdModelView>) => {
-            state.groups && state.groups?.push(action.payload);
+            if (!state.groups) state.groups = [];
+            state.groups?.push(action.payload);
         },
         editGroup: (state, action: PayloadAction<GroupCmdModelView>) => {
             const indexGroup = state.groups && state.groups?.findIndex(

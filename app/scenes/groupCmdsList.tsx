@@ -77,10 +77,11 @@ const GroupCmdsListScreen: FunctionComponent<Props> = (props) => {
         <View style={{ flex: 1, }} >
             <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
             <ScrollView style={styles.mainCont}   >
-                {props.groups.length < 1 && <View style={{ marginVertical: 10, alignSelf: 'center', }} >
+                {(props.groups == undefined || props.groups.length < 1) && <View style={{ marginVertical: 10, alignSelf: 'center' }} >
                     <Text style={{ textAlign: 'center', color: colors.text }} >{t('groups:loadGroup.titles.empty')}</Text>
                 </View>}
-                {props.groups.map((item, key) => <CardGroup colorText={colors.text} bgColor={colors.background_3} btnColor={colors.background_1} key={item.id + key} item={item} openGroup={openGroup} deleteGroup={alertDelete} />)}
+                {props.groups && props.groups.map((item, key) => <CardGroup colorText={colors.text} bgColor={colors.background_3} btnColor={colors.background_1} key={item.id + key} item={item} openGroup={openGroup} deleteGroup={alertDelete} />)}
+                
             </ScrollView>
             <ModalInfoFC closeModal={() => setShowModalLoading(false)} modalVisible={showModalLoading} title={t('groups:loadGroup.dialogLoading.loading.title')} description={t('groups:loadGroup.dialogLoading.loading.description')} loading={true} />
         </View>
