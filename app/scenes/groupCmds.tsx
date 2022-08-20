@@ -7,7 +7,6 @@ import IonicIcon from 'react-native-vector-icons/Ionicons';
 
 //
 import { downPositionElement, runCmds, upPositionElement } from '../infrastructure/utils/utilsGroups';
-import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
 import { RootStackParamList } from '../routes/routesNames';
 import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
 import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
@@ -16,16 +15,35 @@ import ModalInfoFC from '../components/ModalInfoFC';
 import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd';
 import { useTheme } from '../infrastructure/contexts/themeContexts';
 import { useTranslation } from 'react-i18next';
+import { RootState } from '../store';
+import { Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import { addGroup, editGroup } from '../store/features/groupSlice';
+import { editMacro } from '../store/features/macroSlice';
 
 type GroupCmdScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
     'GroupCmds'
 >;
 
-interface Props {
+interface StateProps {
+    groups: GroupCmdModelView[];
+    macros: MacroCmdModelView[];
+}
+
+interface DispatchProps {
+    addGroup: (data: GroupCmdModelView) => void;
+    editGroup: (data: GroupCmdModelView) => void;
+    editMacro: (data: MacroCmdModelView) => void;
+}
+interface OwnProps {
     navigation: GroupCmdScreenNavigationProp;
     route: RouteProp<RootStackParamList, 'GroupCmds'>,
 }
+
+
+type Props = StateProps & DispatchProps & OwnProps;
+
 
 const GroupCmdScreen: FunctionComponent<Props> = (props) => {
 
@@ -38,6 +56,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     // 
     const [time, setTime] = useState(25)
     const [idCmd, setIdCmd] = useState(0)
+    const [idGroup, setIdGroup] = useState(0)
     const [title, setTitle] = useState('');
     const [cmd, setCmd] = useState('');
     const [macro, setMacro] = useState(0);
@@ -52,24 +71,27 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     useEffect(() => {
         if (props.route.params && props.route.params.id) {
             getDataFromStorage();
+            setIdGroup(props.route.params.id);
         }
     }, [])
 
     function addMacro() {
-        let r = macros.find(item => item.id == macro);
-        setCmds((prevState) => ([
-            ...prevState,
-            {
-                id: Date.now(),
-                timeOut: time,
-                title: r.title,
-                isMacro: true,
-                listCmds: r.listCmds,
-                idGroup: props.route.params.id,
-            }
-        ]));
+        let r = props.macros.find(item => item.id == macro);
+        if (r) {
+            setCmds((prevState) => ([
+                ...prevState,
+                {
+                    id: Date.now(),
+                    timeOut: time,
+                    title: r.title,
+                    isMacro: true,
+                    listCmds: r.listCmds,
+                    idGroup: idGroup,
+                }
+            ]));
+        }
         setTimeout(() => {
-            setMacro(macros[0].id);
+            setMacro(props.macros[0].id);
             setCmd('');
             setTime(25);
             setShowAddMacro(false);
@@ -100,12 +122,14 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     function editCmd(id: number) {
         setIsEdit(true);
         let r = cmds.find(item => item.id == id);
-        setTitle(r?.title);
-        setCmd(r?.cmd);
-        setTime(r?.timeOut);
-        setIdCmd(id);
-        setShowAddCmd(true);
-        setHaveChanges(true);
+        if (r) {
+            setTitle(r.title);
+            r.cmd && setCmd(r.cmd);
+            setTime(r.timeOut);
+            setIdCmd(id);
+            setShowAddCmd(true);
+            setHaveChanges(true);
+        }
     }
 
     function saveEditCmd(id: number) {
@@ -116,7 +140,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                 title: title,
                 cmd: cmd,
                 timeOut: time,
-                idGroup: props.route.params.id
+                idGroup: idGroup
             };
             return [
                 ...prevState
@@ -139,44 +163,31 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     function getDataFromStorage() {
         setIsSave(false);
         setShowModalLoading(true);
-        getStoreData('groupsCmds').then(r => {
-            if (r) {
-                let listGroups = r;
-                let result = listGroups.find(item => item.id == props.route.params.id);
-                if (result) {
-                    setCmds(result.listCmds);
-                } else {
-                    props.navigation.navigate('Home');
-                }
-            }
-        }).then(async () => {
-            await getStoreData('macrosCmds').then((r) => {
-                if (r) {
-                    setMacros(r);
-                    setMacro(r[0].id);
-                    setShowModalLoading(false);
-                }
-            })
-        }).catch(() => {
-            setShowModalLoading(false);
-        })
+
+        let result = props.groups.find(item => item.id == props.route.params.id);
+        if (result) {
+            setCmds(result.listCmds);
+        } else {
+            props.navigation.navigate('Home');
+        }
+
+        setMacros(props.macros);
+        setMacro(props.macros[0].id);
+        setShowModalLoading(false);
+
     }
 
     function saveGroup() {
         setIsSave(true);
         setHaveChanges(false);
         setShowModalLoading(true);
-        getStoreData('groupsCmds').then((r: GroupCmdModelView[]) => {
-            let listGroups = r ? r : [];
-            let result = r.findIndex(item => item.id == props.route.params.id);
-            if (result > -1) {
-                listGroups[result].listCmds = cmds;
-            }
-            setStoreData("groupsCmds", listGroups);
-            setShowModalLoading(false);
-        }).catch(() => {
-            setShowModalLoading(false);
-        })
+        props.editGroup({
+            id:idGroup ,
+            title,
+           listCmds: cmds
+        });
+        setShowModalLoading(false);
+ 
     }
 
 
@@ -195,7 +206,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     }
 
     function _runCmds() {
-        props.navigation.navigate('RunCmds', { id: props.route.params.id, run: true });
+        props.navigation.navigate('RunCmds', { id: idGroup, run: true });
     }
 
 
@@ -222,7 +233,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
             justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 45, height: 45, alignSelf: 'flex-end'
         },
         emptyText: {
-            textAlign: 'center',  color: colors.text
+            textAlign: 'center', color: colors.text
         }
     })
 
@@ -335,4 +346,22 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
     );
 }
 
-export default GroupCmdScreen;
+
+const mapStateToProps = (state: RootState) => {
+
+    return {
+        groups: state.group.groups,
+        macros: state.macro.macros
+    }
+}
+
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+    return {
+        addGroup: (data: GroupCmdModelView) => dispatch(addGroup(data)),
+        editGroup: (data: GroupCmdModelView) => dispatch(editGroup(data)),
+        editMacro: (data: MacroCmdModelView) => dispatch(editMacro(data)),
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(GroupCmdScreen);
