@@ -25,12 +25,12 @@ interface Props {
 
 const CalCRCCmdScreen: FunctionComponent<Props> = (props) => {
     const { colors } = useTheme();
-    const {} = useTranslation(['calculateCRC'])
+    const { } = useTranslation(['calculateCRC'])
     const [types] = useState([
         { name: 'CRC8 / MAXIM', value: 'crc8Mixim' },
         { name: 'CRC16 / Modbus', value: 'crc16Modbus' },
     ]);
-    const [type, setType] = useState('');
+    const [type, setType] = useState('crc8Mixim');
     const [cmd, setCmd] = useState('');
     const [result, setResult] = useState('');
 
@@ -57,23 +57,24 @@ const CalCRCCmdScreen: FunctionComponent<Props> = (props) => {
 
     const styles = StyleSheet.create({
         contPrincipal: {
-            flex: 1, flexDirection: 'column' 
+            flex: 1, flexDirection: 'column'
         },
         titleInput: {
-            fontWeight: 'bold', fontSize: 12, marginBottom: 5, color: colors.text 
+            fontWeight: 'bold', fontSize: 12, marginBottom: 5, color: colors.text
         },
-        contInputs:{
+        contInputs: {
             marginVertical: 10
         },
-        contInput:{
+        contInput: {
             backgroundColor: '#fff', elevation: 2
         },
-        contResult:{
-             flex: 1, marginTop: 20,
+        contResult: {
+            flex: 1, marginTop: 20,
         },
         textResult: {
             backgroundColor: colors.background_3, padding: 10, fontSize: 20, textAlign: 'center', color: colors.text
-        }
+        },
+        textInput: { height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 0, color: colors.text, backgroundColor: colors.background },
 
     })
 
@@ -96,10 +97,12 @@ const CalCRCCmdScreen: FunctionComponent<Props> = (props) => {
                 </View>
 
                 <View style={styles.contInputs} >
-                    <Text style={styles.titleInput} >{t('calculateCRC:inputs.command')+':'}</Text>
+                    <Text style={styles.titleInput} >{t('calculateCRC:inputs.command') + ':'}</Text>
                     <View style={styles.contInput} >
                         <TextInput
                             placeholder={t('calculateCRC:inputs.command')}
+                            placeholderTextColor={colors.textPlaceholder}
+                            style={styles.textInput}
                             value={cmd}
                             onChangeText={value => setCmd(value)}
                             autoCapitalize='characters'

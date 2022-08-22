@@ -1,18 +1,40 @@
 import React, { FunctionComponent, useEffect, useState } from 'react'
-import { Alert, Button, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
 import { Picker } from '@react-native-picker/picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTranslation } from 'react-i18next';
+import { Dispatch } from 'redux';
+import { connect } from 'react-redux';
 //
 import ModalInfoFC from '../components/ModalInfoFC';
 import { DataBitsEnum, ParitiesEnum, StopBitsEnum } from '../infrastructure/enums/configurationDataEnum';
 import { useTheme } from '../infrastructure/contexts/themeContexts';
-import { useTranslation } from 'react-i18next';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../routes/routesNames';
+import ConfigurationModelView from '../infrastructure/modelViews/Configuration';
+import { RootState } from '../store';
+import { selectConfig, setConfiguration } from '../store/features/configurationSlice';
 
 
-type StateProps = {}
+type ConfigurationScreenNavigationProp = StackNavigationProp<
+    RootStackParamList,
+    'Configuration'>;
 
-type Props = StateProps;
+interface StateProps {
+    configuration: ConfigurationModelView | undefined;
+}
+
+interface DispatchProps {
+    setConfiguration: (data: ConfigurationModelView) => void;
+
+}
+interface OwnProps {
+    navigation: ConfigurationScreenNavigationProp;
+}
+
+type Props = StateProps & DispatchProps & OwnProps;
+
+
 
 
 const ConfigurationScreen: FunctionComponent<Props> = (props) => {
@@ -54,53 +76,29 @@ const ConfigurationScreen: FunctionComponent<Props> = (props) => {
     function getDataFromStorage() {
         setShowModalLoading(true);
         setIsSave(false);
-        getData('configuration').then(r => {
-            if (r) {
-                setDataBits(r.data_bits);
-                setStopsBits(r.stop_bits);
-                setParity(r.parity);
-                setBreakDuration(r.break_time);
-                setBaudRate(r.baud_rate);
-            }
-        }).then(() => {
-            setShowModalLoading(false);
-        });
+        const configuration = props.configuration;
+        if (configuration) {
+            setDataBits(configuration.data_bits);
+            setStopsBits(configuration.stop_bits);
+            setParity(configuration.parity);
+            setBreakDuration(configuration.break_time);
+            setBaudRate(configuration.baud_rate);
+        }
+        setShowModalLoading(false);
+
     }
 
     async function saveData() {
         setShowModalLoading(true);
         setIsSave(true);
-        storeData('configuration', {
+        props.setConfiguration({
             data_bits: dataBits,
             stop_bits: stopsBits,
             parity: parity,
             break_time: breakDuration,
             baud_rate: baudRate
-        }).then(() => {
-            setShowModalLoading(false);
-        });
-    }
-
-    async function storeData(key: string, value: any) {
-        try {
-            const jsonValue = JSON.stringify(value)
-            await AsyncStorage.setItem('@' + key, jsonValue)
-        } catch (e) {
-            // saving error
-            Alert.alert('Error guardando', 'Ha ocurrido un error guardando.')
-        }
-    }
-
-    async function getData(key: string): Promise<any> {
-        let result = null;
-        try {
-            const jsonValue = await AsyncStorage.getItem('@' + key)
-            result = jsonValue;
-            return jsonValue != null ? JSON.parse(jsonValue) : null;
-        } catch (e) {
-            // error reading value
-        }
-        return result;
+        })
+        setShowModalLoading(false);
     }
 
 
@@ -112,8 +110,8 @@ const ConfigurationScreen: FunctionComponent<Props> = (props) => {
 
 
     return (
-        <ScrollView style={{ maxWidth: '96%', alignSelf: 'center', width: '100%' }} >
-            <StatusBar backgroundColor={'#0096A6'} barStyle="light-content" ></StatusBar>
+        <ScrollView style={{ alignSelf: 'center', width: '100%', paddingHorizontal: 10 }} >
+            <StatusBar backgroundColor={colors.headerAccent} barStyle="light-content" ></StatusBar>
             <View style={{ marginVertical: 10 }} >
                 <Text style={{ fontWeight: 'bold', fontSize: 12, marginBottom: 5, color: colors.text }} >Baud rate:</Text>
                 <View style={{ backgroundColor: '#fff', elevation: 2 }} >
@@ -133,7 +131,7 @@ const ConfigurationScreen: FunctionComponent<Props> = (props) => {
                     <Picker
                         selectedValue={parity}
                         style={{ height: 50, width: '100%' }}
-                        onValueChange={(itemValue, itemIndex) => setParity(+itemValue)}>
+                        onValueChange={(itemValue) => setParity(+itemValue)}>
                         {Options.parity.map((item) => <Picker.Item key={'value-time-' + item} label={item.name} value={item.value} />)}
                     </Picker>
                 </View>
@@ -144,7 +142,7 @@ const ConfigurationScreen: FunctionComponent<Props> = (props) => {
                     <Picker
                         selectedValue={dataBits}
                         style={{ height: 50, width: '100%' }}
-                        onValueChange={(itemValue, itemIndex) => setDataBits(+itemValue)}>
+                        onValueChange={(itemValue) => setDataBits(+itemValue)}>
                         {Options.dataBits.map((item) => <Picker.Item key={'value-time-' + item} label={item.toString()} value={item} />)}
                     </Picker>
                 </View>
@@ -195,4 +193,19 @@ const ConfigurationScreen: FunctionComponent<Props> = (props) => {
     );
 }
 
-export default ConfigurationScreen;
+
+
+const mapStateToProps = (state: RootState) => {
+    return {
+        configuration: selectConfig(state),
+    }
+}
+
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+    return {
+        setConfiguration: (data: ConfigurationModelView) => dispatch(setConfiguration(data)),
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ConfigurationScreen);

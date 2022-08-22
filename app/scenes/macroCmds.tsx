@@ -5,26 +5,40 @@ import React, { FunctionComponent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { Button, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native'
 import IonicIcon from 'react-native-vector-icons/Ionicons';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 import CardCmd from '../components/GroupsCmd/CardCmd';
 import ModalInfoFC from '../components/ModalInfoFC';
 import { useTheme } from '../infrastructure/contexts/themeContexts';
 import { CmdModelView } from '../infrastructure/modelViews/CmdModelView';
-import { GroupCmdModelView } from '../infrastructure/modelViews/GroupCmd';
+import { MacroCmdModelView } from '../infrastructure/modelViews/MacroCmd';
 
 // 
 import { downPositionElement, upPositionElement } from '../infrastructure/utils/utilsGroups';
-import { getStoreData, setStoreData } from '../infrastructure/utils/utilsStore';
 import { RootStackParamList } from '../routes/routesNames';
+import { RootState } from '../store';
+import { addMacro, editMacro } from '../store/features/macroSlice';
 
-type GroupCmdScreenNavigationProp = StackNavigationProp<
+type MacroCmdScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
-    'GroupCmds'
+    'MacroCmds'
 >;
 
-interface Props {
-    navigation: GroupCmdScreenNavigationProp;
-    route: RouteProp<RootStackParamList, 'GroupCmds'>,
+interface StateProps {
+    macros: MacroCmdModelView[] | undefined;
 }
+
+interface DispatchProps {
+    addMacro: (data: MacroCmdModelView) => void;
+    editMacro: (data: MacroCmdModelView) => void;
+}
+interface OwnProps {
+    navigation: MacroCmdScreenNavigationProp;
+    route: RouteProp<RootStackParamList, 'MacroCmds'>,
+}
+
+
+type Props = StateProps & DispatchProps & OwnProps;
 
 const MacroCmdScreen: FunctionComponent<Props> = (props) => {
 
@@ -34,6 +48,7 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
     const [cmds, setCmds] = useState([] as CmdModelView[]);
     const [time, setTime] = useState(25)
     const [idCmd, setIdCmd] = useState(0)
+    const [idMacro, setIdMacro] = useState(0)
     const [title, setTitle] = useState('');
     const [cmd, setCmd] = useState('');
     const [disabledAdd, setDisabledAdd] = useState(false);
@@ -47,6 +62,7 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
 
     useEffect(() => {
         if (props.route.params && props.route.params.id) {
+            setIdMacro(props.route.params.id);
             getDataFromStorage();
         }
     }, [])
@@ -117,35 +133,28 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
     function getDataFromStorage() {
         setIsSaveCmd(false);
         setShowModalLoading(true);
-        getStoreData('macrosCmds').then(r => {
-            if (r) {
-                let listGroups = r;
-                let result = listGroups.find((item: GroupCmdModelView) => item.id == props.route.params.id);
-                if (result) {
-                    setCmds(result.listCmds);
-                } else {
-                    props.navigation.navigate('Home');
-                }
+        const macros = props.macros;
+        if (macros) {
+            let result = macros.find((item: MacroCmdModelView) => item.id == props.route.params.id);
+            if (result) {
+                setCmds(result.listCmds);
+            } else {
+                props.navigation.navigate('Home');
             }
-        }).then(() => {
-            setShowModalLoading(false);
-        }).then(() => {
-        });
+        }
+        setShowModalLoading(false);
     }
 
     function saveMacro() {
         setIsSaveCmd(true);
         setHaveChanges(false);
         setShowModalLoading(true);
-        getStoreData('macrosCmds').then((r: GroupCmdModelView[]) => {
-            let listGroups = r ? r : [];
-            let result = r.findIndex(item => item.id == props.route.params.id);
-            if (result > -1) {
-                listGroups[result].listCmds = cmds;
-            }
-            setStoreData("macrosCmds", listGroups);
-            setShowModalLoading(false);
+        props.editMacro({
+            id: idMacro,
+            title: title,
+            listCmds: cmds
         })
+        setShowModalLoading(false);
     }
 
 
@@ -185,6 +194,7 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
         inputBackCont: {
             backgroundColor: '#fff', elevation: 2
         },
+        textInput: { height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 0, color: colors.text, backgroundColor: colors.background },
         buttonsCont: {
             marginVertical: 10, flex: 1, flexDirection: 'row'
         },
@@ -216,6 +226,8 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
                                 <TextInput
                                     placeholder="Nombre"
                                     value={title}
+                                    style={styles.textInput}
+                                    placeholderTextColor={colors.textPlaceholder}
                                     onChangeText={value => setTitle(value)}
                                 />
                             </View>
@@ -226,6 +238,8 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
                                 <TextInput
                                     placeholder={t('macros:addMacros.inputs.addHexCommand')}
                                     value={cmd}
+                                    style={styles.textInput}
+                                    placeholderTextColor={colors.textPlaceholder}
                                     onChangeText={value => setCmd(value)}
                                     autoCapitalize='characters'
                                 />
@@ -271,4 +285,20 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
     );
 }
 
-export default MacroCmdScreen;
+
+const mapStateToProps = (state: RootState) => {
+
+    return {
+        macros: state.macro.macros
+    }
+}
+
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+    return {
+        addMacro: (data: MacroCmdModelView) => dispatch(addMacro(data)),
+        editMacro: (data: MacroCmdModelView) => dispatch(editMacro(data)),
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(MacroCmdScreen);
