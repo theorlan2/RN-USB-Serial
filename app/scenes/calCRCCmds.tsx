@@ -101,7 +101,7 @@ const CalCRCCmdScreen: FunctionComponent<Props> = (props) => {
                     <View style={styles.contInput} >
                         <TextInput
                             placeholder={t('calculateCRC:inputs.command')}
-                            placeholderTextColor={colors.text}
+                            placeholderTextColor={colors.textPlaceholder}
                             style={styles.textInput}
                             value={cmd}
                             onChangeText={value => setCmd(value)}

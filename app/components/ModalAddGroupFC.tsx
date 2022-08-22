@@ -51,7 +51,7 @@ const ModalAddGroupFC: FunctionComponent<Props> = (props: Props) => {
                             <TextInput
                                 placeholder="Nombre"
                                 style={styles.textInput}
-                                placeholderTextColor={colors.text}
+                                placeholderTextColor={colors.textPlaceholder}
                                 value={name}
                                 autoFocus={true}
                                 onChangeText={value => setName(value)}

@@ -235,7 +235,8 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
         },
         emptyText: {
             textAlign: 'center', color: colors.text
-        }
+        },
+        textInput: { height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 0, color: colors.text, backgroundColor: colors.background },
     })
 
     return (
@@ -255,16 +256,20 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                                 <TextInput
                                     placeholder={t('groups:addGroup.inputs.name')}
                                     value={title}
+                                    style={styles.textInput}
+                                    placeholderTextColor={colors.textPlaceholder}
                                     onChangeText={value => setTitle(value)}
                                 />
                             </View>
                         </View>
                         <View style={{ marginVertical: 10, paddingBottom: 15, }} >
-                            <Text style={styles.inputTitle} >{t('groups:addGoups.inputs.cammand')}</Text>
+                            <Text style={styles.inputTitle} >{t('groups:addGroup.inputs.command')}</Text>
                             <View style={styles.inputBack} >
                                 <TextInput
-                                    placeholder={t('groups:addGoups.inputs.cammand')}
+                                    placeholder={t('groups:addGroup.inputs.command')}
                                     value={cmd}
+                                    style={styles.textInput}
+                                    placeholderTextColor={colors.textPlaceholder}
                                     onChangeText={value => setCmd(value)}
                                     autoCapitalize='characters'
                                 />
@@ -286,7 +291,7 @@ const GroupCmdScreen: FunctionComponent<Props> = (props) => {
                                 <Button title={t('defaultData:buttons.cancel')} onPress={() => setShowAddCmd(false)} color="red"   ></Button>
                             </View>
                             <View style={{ flex: 1, marginLeft: 5 }} >
-                                <Button title={t('defaultData.buttons.save')} onPress={() => isEdit ? saveEditCmd(idCmd) : addCmd()} color="#00BBD3"  ></Button>
+                                <Button title={t('defaultData:buttons.save')} onPress={() => isEdit ? saveEditCmd(idCmd) : addCmd()} color="#00BBD3"  ></Button>
                             </View>
                         </View>
                     </View>}

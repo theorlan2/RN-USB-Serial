@@ -139,7 +139,8 @@ const TempCmdScreen: FunctionComponent = () => {
         },
         bottomButton:{
             backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center', borderRadius: 40, elevation: 4, width: 60, height: 60, alignSelf: 'flex-end'
-        }
+        },
+        textInput: { height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 0, color: colors.text, backgroundColor: colors.background },
 
     })
 
@@ -157,6 +158,8 @@ const TempCmdScreen: FunctionComponent = () => {
                             <View style={styles.contInput} >
                                 <TextInput
                                     placeholder={t('sendTempCmds:inputs.name')}
+                                    style={styles.textInput}
+                                    placeholderTextColor={colors.textPlaceholder}                                    
                                     value={title}
                                     onChangeText={value => setTitle(value)}
                                 />
@@ -167,6 +170,8 @@ const TempCmdScreen: FunctionComponent = () => {
                             <View style={styles.contInput} >
                                 <TextInput
                                     placeholder={t('sendTempCmds:inputs.cmd')}
+                                    style={styles.textInput}
+                                    placeholderTextColor={colors.textPlaceholder}                                    
                                     value={cmd}
                                     onChangeText={value => setCmd(value)}
                                 />

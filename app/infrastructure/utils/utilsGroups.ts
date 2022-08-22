@@ -29,13 +29,16 @@ export function runCmds(cmds: CmdModelView[], callBack: (cmd: string) => void) {
     let _time_count = 0;
     for (let i = 0; i < cmds.length; ++i) {
         if (cmds[i].isMacro) {
-            for (let e = 0; e < cmds[i].listCmds.length; ++e) {
-                _time_count += cmds[i].listCmds[e].timeOut;
-                doSetTimeout(cmds[i].listCmds[e].cmd, _time_count, callBack);
+            if (Array.isArray(cmds[i].listCmds)) {
+                for (let e = 0; e < cmds[i].listCmds.length; ++e) {
+                    if (cmds[i].listCmds && cmds[i].listCmds[e])
+                        _time_count += cmds[i].listCmds[e].timeOut;
+                    doSetTimeout(cmds[i].listCmds[e].cmd, _time_count, callBack);
+                }
             }
         } else {
             _time_count += cmds[i].timeOut;
-            doSetTimeout(cmds[i].cmd, _time_count, callBack);
+            cmds[i].cmd && doSetTimeout(cmds[i].cmd, _time_count, callBack);
         }
     }
 }
@@ -43,16 +46,19 @@ export function runCmds(cmds: CmdModelView[], callBack: (cmd: string) => void) {
 export function upPositionElement(id: number, cmds: CmdModelView[], callBack: (result: CmdModelView[]) => void) {
     let _cmds = cmds;
     let indx = cmds.findIndex(item => item.id == id);
-    let result = moveArrayItemToNewIndex(_cmds, indx, (indx + 1))
-    _cmds = result;
-    if (callBack)
-        callBack(_cmds);
+    if ((indx + 1) < cmds.length) {
+        let result = moveArrayItemToNewIndex(_cmds, indx, (indx + 1))
+        _cmds = result;
+        if (callBack)
+            callBack(_cmds);
+    }
 }
 
 export function downPositionElement(id: number, cmds: CmdModelView[], callBack: (result: CmdModelView[]) => void) {
     let _cmds = cmds;
     let indx = cmds.findIndex(item => item.id == id);
-    if (indx - 1 > 0) {
+    if ((indx - 1) > 0) {
+
         let result = moveArrayItemToNewIndex(_cmds, indx, (indx - 1))
         _cmds = result;
         if (callBack)

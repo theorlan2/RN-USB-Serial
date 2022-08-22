@@ -194,6 +194,7 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
         inputBackCont: {
             backgroundColor: '#fff', elevation: 2
         },
+        textInput: { height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 0, color: colors.text, backgroundColor: colors.background },
         buttonsCont: {
             marginVertical: 10, flex: 1, flexDirection: 'row'
         },
@@ -225,6 +226,8 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
                                 <TextInput
                                     placeholder="Nombre"
                                     value={title}
+                                    style={styles.textInput}
+                                    placeholderTextColor={colors.textPlaceholder}
                                     onChangeText={value => setTitle(value)}
                                 />
                             </View>
@@ -235,6 +238,8 @@ const MacroCmdScreen: FunctionComponent<Props> = (props) => {
                                 <TextInput
                                     placeholder={t('macros:addMacros.inputs.addHexCommand')}
                                     value={cmd}
+                                    style={styles.textInput}
+                                    placeholderTextColor={colors.textPlaceholder}
                                     onChangeText={value => setCmd(value)}
                                     autoCapitalize='characters'
                                 />
